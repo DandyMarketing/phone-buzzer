@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Organiser Dashboard — Buzzer</title>
+  <title>Pink Fest — Organiser Dashboard</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f0f1a;
-      --card: #1a1a2e;
-      --accent: #e94560;
-      --text: #eaeaea;
-      --muted: #888;
+      --bg: #2e0a1c;
+      --card: #4a1530;
+      --accent: #ec1278;
+      --accent2: #ff4d96;
+      --text: #ffeaf3;
+      --muted: #c193ab;
       --green: #00d4aa;
       --amber: #f5a623;
       --blue:  #4a9eff;
       --grey:  #6b7280;
-      --border: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.1);
     }
 
     body {
@@ -186,18 +187,18 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+      box-shadow: 0 4px 20px rgba(236,18,120,0.4);
       transition: transform 0.15s, box-shadow 0.15s;
       margin-bottom: 12px;
     }
 
-    .buzz-all-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(233,69,96,0.5); }
+    .buzz-all-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(236,18,120,0.6); }
     .buzz-all-btn:active { transform: scale(0.97); }
     .buzz-all-btn.fired { animation: buzzFlash 0.2s ease 3 alternate; }
 
     @keyframes buzzFlash {
       from { background: var(--accent); }
-      to   { background: #ff7096; }
+      to   { background: var(--accent2); }
     }
 
     .buzz-all-note {
@@ -339,13 +340,13 @@
 
     @keyframes itemFlash {
       from { background: rgba(255,255,255,0.04); border-color: var(--border); }
-      to   { background: rgba(233,69,96,0.2);   border-color: var(--accent); }
+      to   { background: rgba(236,18,120,0.25); border-color: var(--accent); }
     }
 
     .avatar {
       width: 56px; height: 56px;
       border-radius: 14px;
-      background: linear-gradient(135deg, #0f3460, #1a4a8a);
+      background: linear-gradient(135deg, #6b1a42, #a32163);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -471,11 +472,11 @@
       font-size: 0.9rem;
       font-weight: 800;
       width: auto;
-      box-shadow: 0 2px 10px rgba(233,69,96,0.35);
+      box-shadow: 0 2px 10px rgba(236,18,120,0.45);
       letter-spacing: 0.3px;
     }
 
-    .buzz-btn:hover { background: #ff5572; box-shadow: 0 3px 14px rgba(233,69,96,0.5); }
+    .buzz-btn:hover { background: var(--accent2); box-shadow: 0 3px 14px rgba(236,18,120,0.55); }
     .buzz-btn:active { transform: scale(0.96); }
 
     .reset-btn {
@@ -547,8 +548,8 @@
 
   <div id="login-screen">
     <div class="login-card">
-      <div class="logo">📳</div>
-      <h1>Organiser Login</h1>
+      <div class="logo" style="font-size:36px;font-weight:900;color:var(--accent);letter-spacing:-1.5px;line-height:1;margin-bottom:6px;">PINK FEST</div>
+      <h1 style="color:var(--accent2);">Organiser Login</h1>
       <p class="subtitle">Enter your PIN to access the dashboard</p>
       <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="10" autocomplete="off" autofocus />
       <p class="error-msg" id="errorMsg"></p>
@@ -559,7 +560,10 @@
   <div id="dashboard">
 
     <div class="top-bar">
-      <h2>📳 Buzzer Dashboard</h2>
+      <h2 style="display:flex;flex-direction:column;line-height:1.05;">
+        <span style="font-size:0.78rem;font-weight:900;color:var(--accent);letter-spacing:1.5px;">PINK FEST</span>
+        <span>Buzzer Dashboard</span>
+      </h2>
       <div class="conn-chip">
         <span class="live-dot"></span>
         <span id="connLabel">Live</span>
@@ -813,7 +817,7 @@
       const safeToken = escAttr(p.token);
 
       const queueBadge = (queuePos != null && (sectionCls === 'coming' || sectionCls === 'checkedin'))
-        ? `<span style="font-size:0.78rem;font-weight:800;background:${sectionCls === 'coming' ? 'var(--green)' : 'var(--blue)'};color:#0f0f1a;border-radius:50px;padding:4px 10px;margin-right:6px;">${sectionCls === 'coming' ? 'QUEUE ' : 'IN '}${queuePos}</span>`
+        ? `<span style="font-size:0.78rem;font-weight:800;background:${sectionCls === 'coming' ? 'var(--green)' : 'var(--blue)'};color:#2e0a1c;border-radius:50px;padding:4px 10px;margin-right:6px;">${sectionCls === 'coming' ? 'QUEUE ' : 'IN '}${queuePos}</span>`
         : '';
 
       const numberDisplay = p.number

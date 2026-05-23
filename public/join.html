@@ -3,24 +3,24 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-  <title>Join Buzzer Session</title>
+  <title>Pink Fest — Join Buzzer</title>
   <!-- PWA / iOS -->
   <link rel="manifest" href="/manifest.json" />
-  <meta name="theme-color" content="#e94560" />
+  <meta name="theme-color" content="#ec1278" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="Buzzer" />
-  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23e94560' rx='38'/><text x='90' y='125' font-size='105' text-anchor='middle' font-family='system-ui'>📳</text></svg>" />
+  <meta name="apple-mobile-web-app-title" content="Pink Fest" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23ec1278' rx='38'/><text x='90' y='125' font-size='105' text-anchor='middle' font-family='system-ui'>📳</text></svg>" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg: #0f0f1a;
-      --card: #1a1a2e;
-      --accent: #e94560;
-      --accent2: #0f3460;
-      --text: #eaeaea;
-      --muted: #888;
+      --bg: #2e0a1c;
+      --card: #4a1530;
+      --accent: #ec1278;
+      --accent2: #ff4d96;
+      --text: #ffeaf3;
+      --muted: #c193ab;
       --green: #00d4aa;
     }
 
@@ -62,14 +62,14 @@
     .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
 
     .notice {
-      background: rgba(233,69,96,0.12);
-      border: 1px solid rgba(233,69,96,0.35);
+      background: rgba(236,18,120,0.15);
+      border: 1px solid rgba(236,18,120,0.4);
       border-radius: 12px;
       padding: 14px 16px;
       margin-bottom: 22px;
       font-size: 0.85rem;
       line-height: 1.5;
-      color: #ffb3c1;
+      color: #ffb8d4;
       text-align: left;
     }
 
@@ -292,13 +292,13 @@
     #sound-banner.unlocked { border-color: var(--green); color: var(--green); cursor: default; }
 
     #wake-banner {
-      background: rgba(15,52,96,0.4);
-      border: 1px solid rgba(170,200,240,0.3);
+      background: rgba(255,77,150,0.1);
+      border: 1px solid rgba(255,77,150,0.35);
       border-radius: 10px;
       padding: 12px 14px;
       margin-top: 12px;
       font-size: 0.82rem;
-      color: #aac8f0;
+      color: var(--accent2);
       display: flex;
       align-items: center;
       gap: 10px;
@@ -307,13 +307,13 @@
     #wake-banner.unlocked { border-color: var(--green); color: var(--green); cursor: default; }
 
     #notif-banner {
-      background: rgba(15,52,96,0.5);
-      border: 1px solid rgba(15,52,96,0.9);
+      background: rgba(255,77,150,0.1);
+      border: 1px solid rgba(255,77,150,0.4);
       border-radius: 10px;
       padding: 12px 14px;
       margin-top: 12px;
       font-size: 0.82rem;
-      color: #aac8f0;
+      color: var(--accent2);
       display: flex;
       align-items: center;
       gap: 10px;
@@ -377,7 +377,7 @@
     background:rgba(0,0,0,0.75); backdrop-filter:blur(8px);
     align-items:center; justify-content:center; padding:20px;">
     <div style="
-      background:linear-gradient(160deg, #1a1a2e, #0f0f1a);
+      background:linear-gradient(160deg, #4a1530, #2e0a1c);
       border:1px solid rgba(255,255,255,0.1);
       border-radius:20px; padding:28px 24px; max-width:380px; width:100%;
       box-shadow:0 12px 60px rgba(0,0,0,0.6); text-align:center;
@@ -445,7 +445,7 @@
   <!-- Thank-you screen (shown when organiser marks Done) -->
   <div id="thankyou-screen" style="
     display:none; position:fixed; inset:0; z-index:210;
-    background:linear-gradient(160deg, #1a4a8a, #0f0f1a);
+    background:linear-gradient(160deg, #ec1278, #2e0a1c);
     flex-direction:column; align-items:center; justify-content:center;
     text-align:center; padding:32px;">
     <div style="font-size:96px;margin-bottom:18px;animation:gentleBounce 2s ease-in-out infinite;">🎉</div>
@@ -482,8 +482,8 @@
 
     <!-- Register screen -->
     <div id="register-screen">
-      <div class="logo">📳</div>
-      <h1>Join Session</h1>
+      <div class="logo" style="font-size:32px;font-weight:900;color:var(--accent);letter-spacing:-1px;line-height:1;margin-bottom:4px;">PINK FEST</div>
+      <h1 style="color:var(--accent2);">Join the Buzzer</h1>
       <p class="subtitle">Register to receive buzzes from the organiser</p>
 
       <div id="returning-banner">
@@ -501,8 +501,8 @@
         </ul>
       </div>
 
-      <div id="ios-notice" class="notice" style="display:none;background:rgba(15,52,96,0.4);border-color:rgba(170,200,240,0.4);color:#aac8f0;">
-        <strong style="color:#aac8f0;">🍎 iPhone users — read this:</strong>
+      <div id="ios-notice" class="notice" style="display:none;background:rgba(255,77,150,0.1);border-color:rgba(255,77,150,0.4);color:var(--accent2);">
+        <strong style="color:var(--accent2);">🍎 iPhone users — read this:</strong>
         <ul>
           <li><b>Flip the silent switch OFF</b> (above volume buttons) — otherwise no sound</li>
           <li>Vibration is <b>not supported</b> on iPhones (Apple limitation)</li>
@@ -553,7 +553,7 @@
         width: 100%;
       ">Leave Queue</button>
 
-      <div id="ios-pwa-banner" style="display:none;background:rgba(15,52,96,0.5);border:1px solid rgba(170,200,240,0.4);border-radius:10px;padding:12px 14px;margin-top:20px;font-size:0.82rem;color:#aac8f0;text-align:left;line-height:1.5;">
+      <div id="ios-pwa-banner" style="display:none;background:rgba(255,77,150,0.12);border:1px solid rgba(255,77,150,0.4);border-radius:10px;padding:12px 14px;margin-top:20px;font-size:0.82rem;color:var(--accent2);text-align:left;line-height:1.5;">
         <strong style="display:block;margin-bottom:4px;">🍎 To receive buzzes when this page is closed:</strong>
         Tap the <b>Share</b> button (square with arrow), then <b>Add to Home Screen</b>. Open Buzzer from your home screen and register there.
       </div>
