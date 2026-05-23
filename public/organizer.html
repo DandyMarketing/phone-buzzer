@@ -725,7 +725,7 @@
       const deleteButton = `<button class="delete-btn" onclick="deleteParticipant('${safeToken}', '${escHtml(p.name).replace(/'/g, '&#39;')}')" title="Remove from queue">🗑</button>`;
 
       const actionButtons = isAvailable
-        ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" ${p.online ? '' : 'disabled'} title="${p.online ? 'Send buzz' : 'Offline'}">
+        ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" title="${p.online ? 'Send buzz (in-app)' : 'Send buzz (push notification only)'}">
              📳 Buzz
            </button>
            ${deleteButton}`
