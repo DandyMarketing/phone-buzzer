@@ -314,11 +314,11 @@
     .p-item {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 14px;
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
-      border-radius: 11px;
-      padding: 10px 13px;
+      border-radius: 12px;
+      padding: 12px 14px;
       transition: opacity 0.2s;
       animation: slideIn 0.25s ease-out;
     }
@@ -335,17 +335,25 @@
     }
 
     .avatar {
-      width: 36px; height: 36px;
-      border-radius: 50%;
-      background: #0f3460;
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #0f3460, #1a4a8a);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: #a8c8ff;
+      font-weight: 900;
+      font-size: 1.4rem;
+      color: #fff;
       flex-shrink: 0;
       position: relative;
+      letter-spacing: -1px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+    .avatar .num-prefix {
+      font-size: 0.7rem;
+      opacity: 0.6;
+      font-weight: 600;
+      margin-right: 1px;
     }
 
     .online-dot {
@@ -374,8 +382,10 @@
     .p-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .status-badge {
@@ -389,17 +399,20 @@
     .status-badge.declined{ background: rgba(233,69,96,0.15); color: var(--accent); border: 1px solid rgba(233,69,96,0.3); }
 
     .buzz-btn {
-      background: rgba(233,69,96,0.15);
-      border: 1px solid rgba(233,69,96,0.4);
-      color: var(--accent);
-      border-radius: 8px;
-      padding: 6px 11px;
-      font-size: 0.8rem;
-      font-weight: 700;
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-size: 0.9rem;
+      font-weight: 800;
       width: auto;
+      box-shadow: 0 2px 10px rgba(233,69,96,0.35);
+      letter-spacing: 0.3px;
     }
 
-    .buzz-btn:hover { background: rgba(233,69,96,0.3); }
+    .buzz-btn:hover { background: #ff5572; box-shadow: 0 3px 14px rgba(233,69,96,0.5); }
+    .buzz-btn:active { transform: scale(0.96); }
 
     .reset-btn {
       background: rgba(255,255,255,0.05);
@@ -415,16 +428,18 @@
     .reset-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
 
     .delete-btn {
-      background: rgba(233,69,96,0.08);
-      border: 1px solid rgba(233,69,96,0.25);
+      background: rgba(233,69,96,0.15);
+      border: 1px solid rgba(233,69,96,0.5);
       color: var(--accent);
-      border-radius: 8px;
-      padding: 6px 9px;
-      font-size: 0.8rem;
-      font-weight: 600;
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 1rem;
+      font-weight: 700;
       width: auto;
+      line-height: 1;
     }
-    .delete-btn:hover { background: rgba(233,69,96,0.2); }
+    .delete-btn:hover { background: var(--accent); color: #fff; }
+    .delete-btn:active { transform: scale(0.96); }
 
     .counts-row {
       display: flex;
@@ -714,19 +729,21 @@
     }
 
     function renderParticipant(p, sectionCls, queuePos) {
-      const initials  = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       const safeToken = escAttr(p.token);
       const isAvailable = sectionCls === 'available';
-      const numTag = p.number ? `<span style="font-size:0.7rem;color:var(--muted);">#${p.number}</span>` : '';
       const queueBadge = (sectionCls === 'coming' && queuePos != null)
-        ? `<span style="font-size:0.72rem;font-weight:700;background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3);border-radius:50px;padding:2px 8px;margin-right:4px;">${queuePos}</span>`
+        ? `<span style="font-size:0.78rem;font-weight:800;background:var(--green);color:#0f0f1a;border-radius:50px;padding:4px 10px;margin-right:6px;">QUEUE ${queuePos}</span>`
         : '';
 
-      const deleteButton = `<button class="delete-btn" onclick="deleteParticipant('${safeToken}', '${escHtml(p.name).replace(/'/g, '&#39;')}')" title="Remove from queue">🗑</button>`;
+      const numberDisplay = p.number
+        ? `<span class="num-prefix">#</span>${p.number}`
+        : '?';
+
+      const deleteButton = `<button class="delete-btn" onclick="deleteParticipant('${safeToken}', '${escHtml(p.name).replace(/'/g, '&#39;')}')" title="Remove from queue">🗑 Delete</button>`;
 
       const actionButtons = isAvailable
         ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" title="${p.online ? 'Send buzz (in-app)' : 'Send buzz (push notification only)'}">
-             📳 Buzz
+             📳 BUZZ
            </button>
            ${deleteButton}`
         : `${queueBadge}<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
@@ -735,12 +752,12 @@
 
       return `
         <div class="p-item ${sectionCls === 'available' ? '' : sectionCls} ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
-          <div class="avatar">
-            ${escHtml(initials)}
+          <div class="avatar" title="Serial number">
+            ${numberDisplay}
             <span class="online-dot ${p.online ? 'on' : 'off'}"></span>
           </div>
           <div class="p-info">
-            <div class="p-name">${escHtml(p.name)} ${numTag}</div>
+            <div class="p-name">${escHtml(p.name)}</div>
             <div class="p-meta">${escHtml(p.mobile)} · ${p.online ? 'Online' : 'Offline'}</div>
           </div>
           <div class="p-actions">${actionButtons}</div>
