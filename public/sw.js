@@ -1,0 +1,23 @@
+self.addEventListener('push', event => {
+  const data = event.data ? event.data.json() : {};
+  event.waitUntil(
+    self.registration.showNotification(data.title || '📳 BUZZ!', {
+      body: data.body || 'The organiser is calling you!',
+      requireInteraction: true,
+      vibrate: [300, 100, 300, 100, 500],
+      data: { url: data.url || '/join' },
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  const url = event.notification.data?.url || '/join';
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+      const existing = list.find(c => c.url.includes('/join'));
+      if (existing) return existing.focus();
+      return clients.openWindow(url);
+    })
+  );
+});

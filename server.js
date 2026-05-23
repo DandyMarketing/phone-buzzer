@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const { Server } = require('socket.io');
 const QRCode = require('qrcode');
+const webpush = require('web-push');
 const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
@@ -12,6 +13,14 @@ const io = new Server(server);
 
 const ORGANIZER_PIN = process.env.ORGANIZER_PIN || '1234';
 const PORT = process.env.PORT || 3000;
+
+const VAPID_PUBLIC_KEY  = process.env.VAPID_PUBLIC_KEY  || 'BI5UKKYXtUMWH0bYK-UrKPfeNwjAKXFzH3bcLckpvoKjjFYvdYjLOhUtFfUmagi_DqRXDK_pld-REAa7LgY7VeQ';
+const VAPID_PRIVATE_KEY = process.env.VAPID_PRIVATE_KEY || 'GN0J72K1E9Yi30TBzZDcvvLeuBXTT11JW692ftfF2pk';
+webpush.setVapidDetails(
+  `mailto:${process.env.VAPID_EMAIL || 'admin@example.com'}`,
+  VAPID_PUBLIC_KEY,
+  VAPID_PRIVATE_KEY
+);
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
@@ -52,6 +61,9 @@ async function initDB() {
 
 // --- In-memory online tracking: socketId -> { token, name, mobile, status } ---
 const onlineSockets = new Map();
+
+// --- Push subscriptions: token -> PushSubscription ---
+const pushSubscriptions = new Map();
 
 // --- DB helpers ---
 async function dbFindByMobile(mobile) {
@@ -196,6 +208,13 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Save push subscription from a participant
+  socket.on('save-push-subscription', ({ token, subscription }) => {
+    if (token && subscription) {
+      pushSubscriptions.set(token, subscription);
+    }
+  });
+
   // Participant responds to a buzz
   socket.on('buzz-response', async ({ token, status }) => {
     if (!['coming', 'declined'].includes(status)) return;
@@ -252,20 +271,33 @@ io.on('connection', (socket) => {
   socket.on('buzz', async ({ targetToken }) => {
     if (onlineSockets.has(socket.id)) return; // participants can't buzz
 
+    function sendPush(token, body) {
+      const sub = pushSubscriptions.get(token);
+      if (!sub) return;
+      webpush.sendNotification(sub, JSON.stringify({
+        title: '📳 BUZZ!',
+        body,
+        url: '/join',
+      })).catch(() => pushSubscriptions.delete(token));
+    }
+
     if (targetToken === 'all') {
-      // Only buzz pending participants (ignore coming/declined)
       const list = await getParticipantsList();
-      const targets = list.filter(p => p.online && p.status === 'pending');
-      targets.forEach(p => {
+      const pending = list.filter(p => p.status === 'pending');
+      // Socket buzz for online participants
+      pending.filter(p => p.online).forEach(p => {
         io.to(p.socketId).emit('buzzed', { message: 'BUZZ! The organiser is calling everyone!' });
       });
+      // Web push for all subscribed pending participants (including offline)
+      pending.forEach(p => sendPush(p.token, 'The organiser is calling everyone!'));
       io.to('organizers').emit('buzz-sent', { targetToken: 'all' });
     } else {
       const entry = [...onlineSockets.entries()].find(([, v]) => v.token === targetToken);
       if (entry) {
         io.to(entry[0]).emit('buzzed', { message: 'BUZZ! The organiser is calling you!' });
-        io.to('organizers').emit('buzz-sent', { targetToken });
       }
+      sendPush(targetToken, 'The organiser is calling you!');
+      io.to('organizers').emit('buzz-sent', { targetToken });
     }
   });
 
@@ -278,6 +310,10 @@ io.on('connection', (socket) => {
 });
 
 // --- Routes ---
+app.get('/vapid-public-key', (req, res) => {
+  res.json({ key: VAPID_PUBLIC_KEY });
+});
+
 app.get('/qr', async (req, res) => {
   const host = req.headers.host;
   const protocol = req.headers['x-forwarded-proto'] || 'http';

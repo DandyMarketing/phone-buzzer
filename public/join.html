@@ -491,25 +491,67 @@
         : `Hello, ${name} 👋`;
       document.getElementById('registeredMobile').textContent = mobile || '';
 
+      setupPush(token);
       checkNotifPermission();
       unlockAudio();
     });
 
-    // Notifications
-    function checkNotifPermission() {
+    // --- Push notifications ---
+    let swRegistration = null;
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map(c => c.charCodeAt(0)));
+    }
+
+    async function setupPush(token) {
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
+      try {
+        swRegistration = await navigator.serviceWorker.register('/sw.js');
+        await navigator.serviceWorker.ready;
+
+        const permission = await Notification.requestPermission();
+        updateNotifBanner(permission);
+        if (permission !== 'granted') return;
+
+        const res = await fetch('/vapid-public-key');
+        const { key } = await res.json();
+        const subscription = await swRegistration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(key),
+        });
+        socket.emit('save-push-subscription', { token, subscription });
+      } catch (err) {
+        console.warn('Push setup failed:', err);
+      }
+    }
+
+    function updateNotifBanner(permission) {
       const banner = document.getElementById('notif-banner');
       const text   = document.getElementById('notifText');
       if (!('Notification' in window)) { banner.style.display = 'none'; return; }
-      if (Notification.permission === 'granted') {
+      if (permission === 'granted') {
         banner.className = 'granted';
-        text.textContent = '✓ Notifications enabled';
-      } else if (Notification.permission === 'denied') {
+        text.textContent = '✓ Push notifications enabled';
+      } else if (permission === 'denied') {
         text.textContent = '⛔ Notifications blocked — enable in browser settings';
       }
     }
 
+    function checkNotifPermission() {
+      if (!('Notification' in window)) {
+        document.getElementById('notif-banner').style.display = 'none';
+        return;
+      }
+      updateNotifBanner(Notification.permission);
+    }
+
     async function requestNotifPermission() {
       if (!('Notification' in window) || Notification.permission === 'granted') return;
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) { await setupPush(token); return; }
       await Notification.requestPermission();
       checkNotifPermission();
     }
