@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Organiser Dashboard — Buzzer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --text: #eaeaea;
+      --muted: #888;
+      --green: #00d4aa;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100dvh;
+      padding: 20px;
+    }
+
+    /* Login screen */
+    #login-screen {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 40px 32px;
+      width: 100%;
+      max-width: 380px;
+      text-align: center;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    }
+
+    .logo { font-size: 52px; margin-bottom: 12px; }
+
+    h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 6px; }
+
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1.2rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 14px;
+      text-align: center;
+      letter-spacing: 6px;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus { border-color: var(--accent); }
+
+    input::placeholder { letter-spacing: 0; color: var(--muted); font-size: 1rem; }
+
+    .error-msg {
+      color: var(--accent);
+      font-size: 0.88rem;
+      margin-bottom: 10px;
+      min-height: 20px;
+    }
+
+    button {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.4; cursor: default; }
+
+    /* Dashboard */
+    #dashboard { display: none; }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .top-bar h2 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .conn-chip {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.3);
+      border-radius: 50px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      color: var(--green);
+    }
+
+    .conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 22px;
+    }
+
+    .panel h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 16px;
+    }
+
+    /* QR panel */
+    .qr-wrap {
+      text-align: center;
+    }
+
+    #qrImg {
+      width: 220px;
+      height: 220px;
+      border-radius: 12px;
+      background: #fff;
+      padding: 8px;
+      margin: 0 auto 14px;
+      display: block;
+    }
+
+    .join-url {
+      font-size: 0.8rem;
+      color: var(--muted);
+      word-break: break-all;
+      background: rgba(255,255,255,0.04);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .join-url:hover { background: rgba(255,255,255,0.08); }
+
+    .copy-hint {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* Buzz all */
+    .buzz-all-btn {
+      background: var(--accent);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+    }
+
+    .buzz-all-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 28px rgba(233,69,96,0.5);
+    }
+
+    .buzz-all-btn:active { transform: scale(0.97); }
+
+    .buzz-all-btn.fired {
+      animation: buzzFlash 0.2s ease 3 alternate;
+    }
+
+    @keyframes buzzFlash {
+      from { background: var(--accent); }
+      to   { background: #ff7096; }
+    }
+
+    /* Participants list */
+    .participants-panel {
+      grid-column: 1 / -1;
+    }
+
+    .count-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 50px;
+      padding: 2px 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+
+    #participantsList {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 480px;
+      overflow-y: auto;
+    }
+
+    .p-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      transition: background 0.2s;
+      animation: slideIn 0.25s ease-out;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .p-item.buzzed-flash {
+      animation: itemFlash 0.15s ease 4 alternate;
+    }
+
+    @keyframes itemFlash {
+      from { background: rgba(255,255,255,0.04); border-color: var(--border); }
+      to   { background: rgba(233,69,96,0.2);   border-color: var(--accent); }
+    }
+
+    .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--accent2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      color: #a8c8ff;
+      flex-shrink: 0;
+    }
+
+    .p-name {
+      flex: 1;
+      font-size: 1rem;
+      font-weight: 500;
+    }
+
+    .p-time {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .buzz-btn {
+      background: rgba(233,69,96,0.15);
+      border: 1px solid rgba(233,69,96,0.4);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      width: auto;
+      transition: background 0.15s;
+      flex-shrink: 0;
+    }
+
+    .buzz-btn:hover {
+      background: rgba(233,69,96,0.3);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
+    .empty-state p { font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+
+  <!-- Login -->
+  <div id="login-screen">
+    <div class="login-card">
+      <div class="logo">📳</div>
+      <h1>Organiser Login</h1>
+      <p class="subtitle">Enter your PIN to access the dashboard</p>
+      <input
+        type="password"
+        id="pinInput"
+        placeholder="Enter PIN"
+        maxlength="10"
+        autocomplete="off"
+        autofocus
+      />
+      <p class="error-msg" id="errorMsg"></p>
+      <button onclick="login()">Enter Dashboard</button>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard">
+    <div class="top-bar">
+      <h2>📳 Buzzer Dashboard</h2>
+      <div class="conn-chip">
+        <span class="conn-dot"></span>
+        <span id="connLabel">Live</span>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <!-- QR Code panel -->
+      <div class="panel qr-wrap">
+        <h3>Scan to Join</h3>
+        <img id="qrImg" src="" alt="Loading QR…" />
+        <div class="join-url" id="joinUrl" onclick="copyUrl()">Loading…</div>
+        <div class="copy-hint">Tap URL to copy</div>
+      </div>
+
+      <!-- Buzz All panel -->
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;">
+        <h3>Quick Actions</h3>
+
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;">
+          <button class="buzz-all-btn" id="buzzAllBtn" onclick="buzzAll()">
+            📳 BUZZ EVERYONE
+          </button>
+
+          <div style="text-align:center;color:var(--muted);font-size:0.82rem;">
+            Sends a buzz alert to all registered participants at once
+          </div>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px;font-size:0.85rem;color:var(--muted);line-height:1.6;">
+          <strong style="color:var(--text);">How it works</strong><br>
+          Participants scan the QR code and register with their name.
+          Use the buttons below to buzz individuals, or use "Buzz Everyone" above.
+        </div>
+      </div>
+
+      <!-- Participants list -->
+      <div class="panel participants-panel">
+        <h3>
+          Participants
+          <span class="count-badge" id="countBadge">0</span>
+        </h3>
+        <ul id="participantsList">
+          <li class="empty-state">
+            <div class="icon">📱</div>
+            <p>No participants yet.<br>Share the QR code to get started.</p>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let participants = [];
+    let joinUrl = '';
+    let authorized = false;
+
+    document.getElementById('pinInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    function login() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) return;
+      socket.emit('join-organizer', { pin });
+    }
+
+    socket.on('auth-ok', () => {
+      authorized = true;
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      loadQR();
+    });
+
+    socket.on('auth-error', (msg) => {
+      document.getElementById('errorMsg').textContent = msg || 'Invalid PIN';
+      document.getElementById('pinInput').value = '';
+      document.getElementById('pinInput').focus();
+    });
+
+    socket.on('connect', () => {
+      document.getElementById('connLabel').textContent = 'Live';
+      // Re-auth on reconnect
+      if (authorized) {
+        const pin = sessionStorage.getItem('bzpin');
+        if (pin) socket.emit('join-organizer', { pin });
+      }
+    });
+
+    socket.on('disconnect', () => {
+      document.getElementById('connLabel').textContent = 'Reconnecting…';
+    });
+
+    socket.on('participants-update', (list) => {
+      participants = list;
+      renderParticipants();
+    });
+
+    // Store pin for reconnect
+    const origLogin = login;
+
+    function login() {
+      const pin = document.getElementById('pinInput').value.trim();
+      if (!pin) return;
+      sessionStorage.setItem('bzpin', pin);
+      socket.emit('join-organizer', { pin });
+    }
+
+    // QR Code
+    async function loadQR() {
+      try {
+        const res = await fetch('/qr');
+        const data = await res.json();
+        document.getElementById('qrImg').src = data.qr;
+        joinUrl = data.url;
+        document.getElementById('joinUrl').textContent = data.url;
+      } catch (e) {
+        document.getElementById('qrImg').alt = 'Failed to load QR';
+      }
+    }
+
+    function copyUrl() {
+      if (!joinUrl) return;
+      navigator.clipboard.writeText(joinUrl).then(() => {
+        const el = document.getElementById('joinUrl');
+        const orig = el.textContent;
+        el.textContent = '✓ Copied!';
+        setTimeout(() => { el.textContent = orig; }, 1500);
+      });
+    }
+
+    // Buzz all
+    function buzzAll() {
+      socket.emit('buzz', { targetSocketId: 'all' });
+      const btn = document.getElementById('buzzAllBtn');
+      btn.classList.add('fired');
+      setTimeout(() => btn.classList.remove('fired'), 600);
+
+      // Flash all participant rows
+      document.querySelectorAll('.p-item').forEach(el => {
+        el.classList.add('buzzed-flash');
+        setTimeout(() => el.classList.remove('buzzed-flash'), 800);
+      });
+    }
+
+    // Buzz individual
+    function buzzOne(socketId, itemEl) {
+      socket.emit('buzz', { targetSocketId: socketId });
+      if (itemEl) {
+        itemEl.classList.add('buzzed-flash');
+        setTimeout(() => itemEl.classList.remove('buzzed-flash'), 800);
+      }
+    }
+
+    // Render list
+    function renderParticipants() {
+      const list = document.getElementById('participantsList');
+      const badge = document.getElementById('countBadge');
+      badge.textContent = participants.length;
+
+      if (participants.length === 0) {
+        list.innerHTML = `
+          <li class="empty-state">
+            <div class="icon">📱</div>
+            <p>No participants yet.<br>Share the QR code to get started.</p>
+          </li>`;
+        return;
+      }
+
+      // Sort newest first
+      const sorted = [...participants].sort((a, b) => b.joinedAt - a.joinedAt);
+
+      list.innerHTML = sorted.map(p => {
+        const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+        const joined = formatTime(p.joinedAt);
+        return `
+          <li class="p-item" id="pitem-${p.socketId}">
+            <div class="avatar">${initials}</div>
+            <div class="p-name">${escHtml(p.name)}</div>
+            <div class="p-time">${joined}</div>
+            <button class="buzz-btn" onclick="buzzOne('${p.socketId}', document.getElementById('pitem-${p.socketId}'))">
+              📳 Buzz
+            </button>
+          </li>`;
+      }).join('');
+    }
+
+    function formatTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escHtml(str) {
+      return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

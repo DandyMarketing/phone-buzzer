@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Join Buzzer Session</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --text: #eaeaea;
+      --muted: #888;
+      --green: #00d4aa;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: background 0.3s;
+    }
+
+    body.buzzing {
+      animation: flashBg 0.15s ease-in-out 6 alternate;
+    }
+
+    @keyframes flashBg {
+      from { background: var(--bg); }
+      to   { background: var(--accent); }
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 36px 28px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 48px;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text);
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 28px;
+    }
+
+    /* Notice banner */
+    .notice {
+      background: rgba(233,69,96,0.12);
+      border: 1px solid rgba(233,69,96,0.35);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      color: #ffb3c1;
+      text-align: left;
+    }
+
+    .notice strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+      color: var(--accent);
+    }
+
+    .notice ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .notice ul li::before {
+      content: '→ ';
+      color: var(--accent);
+      font-weight: bold;
+    }
+
+    /* Form */
+    input[type="text"] {
+      width: 100%;
+      background: rgba(255,255,255,0.07);
+      border: 2px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 14px 18px;
+      font-size: 1.1rem;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    input[type="text"]::placeholder {
+      color: var(--muted);
+    }
+
+    button {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: 15px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+      letter-spacing: 0.5px;
+    }
+
+    button:hover { opacity: 0.9; }
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.4; cursor: default; }
+
+    .btn-secondary {
+      background: rgba(255,255,255,0.08);
+      margin-top: 10px;
+      font-weight: 500;
+      font-size: 0.9rem;
+    }
+
+    /* Status screen (after registration) */
+    #status-screen { display: none; }
+
+    .status-icon {
+      font-size: 64px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .status-name {
+      font-size: 1.1rem;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .waiting-indicator {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: var(--green);
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .dot:nth-child(2) { animation-delay: 0.2s; }
+    .dot:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.3; transform: scale(0.8); }
+      50%       { opacity: 1;   transform: scale(1.2); }
+    }
+
+    /* Buzz overlay */
+    #buzz-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: var(--accent);
+      z-index: 100;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      animation: overlayIn 0.15s ease-out;
+    }
+
+    #buzz-overlay.visible { display: flex; }
+
+    @keyframes overlayIn {
+      from { opacity: 0; transform: scale(1.05); }
+      to   { opacity: 1; transform: scale(1); }
+    }
+
+    .buzz-icon {
+      font-size: 100px;
+      animation: shake 0.1s linear infinite;
+    }
+
+    @keyframes shake {
+      0%   { transform: translate(-4px, 0) rotate(-3deg); }
+      25%  { transform: translate(4px, 0) rotate(3deg); }
+      50%  { transform: translate(-4px, 0) rotate(-3deg); }
+      75%  { transform: translate(4px, 0) rotate(3deg); }
+      100% { transform: translate(-4px, 0) rotate(-3deg); }
+    }
+
+    .buzz-text {
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #fff;
+      margin-top: 16px;
+      letter-spacing: 2px;
+      text-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    }
+
+    .buzz-sub {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.85);
+      margin-top: 8px;
+    }
+
+    .buzz-dismiss {
+      margin-top: 40px;
+      background: rgba(255,255,255,0.2);
+      border: 2px solid rgba(255,255,255,0.5);
+      border-radius: 50px;
+      padding: 14px 36px;
+      font-size: 1rem;
+      width: auto;
+      font-weight: 600;
+    }
+
+    .buzz-dismiss:hover { background: rgba(255,255,255,0.3); }
+
+    /* Notif perm banner */
+    #notif-banner {
+      background: rgba(15,52,96,0.5);
+      border: 1px solid rgba(15,52,96,0.9);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: #aac8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #notif-banner:hover { background: rgba(15,52,96,0.7); }
+    #notif-banner.granted { border-color: var(--green); color: var(--green); cursor: default; }
+
+    .conn-status {
+      position: fixed;
+      top: 12px;
+      right: 14px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .conn-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #888;
+    }
+
+    .conn-dot.connected { background: var(--green); }
+    .conn-dot.disconnected { background: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <div class="conn-status">
+    <span class="conn-dot" id="connDot"></span>
+    <span id="connLabel">Connecting…</span>
+  </div>
+
+  <!-- Buzz overlay -->
+  <div id="buzz-overlay">
+    <div class="buzz-icon">📳</div>
+    <div class="buzz-text">BUZZ!</div>
+    <div class="buzz-sub" id="buzzMsg">The organiser is calling you!</div>
+    <button class="buzz-dismiss" onclick="dismissBuzz()">Dismiss</button>
+  </div>
+
+  <div class="card">
+
+    <!-- Register screen -->
+    <div id="register-screen">
+      <div class="logo">📳</div>
+      <h1>Join Session</h1>
+      <p class="subtitle">Register to receive buzzes from the organiser</p>
+
+      <div class="notice">
+        <strong>⚠️ Before you register:</strong>
+        <ul>
+          <li>Keep your phone volume on</li>
+          <li>Don't put your phone on silent</li>
+          <li>Keep this page open</li>
+          <li>Allow notifications when prompted</li>
+        </ul>
+      </div>
+
+      <input
+        type="text"
+        id="nameInput"
+        placeholder="Enter your name"
+        maxlength="40"
+        autocomplete="off"
+        autofocus
+      />
+      <button id="registerBtn" onclick="register()">Register</button>
+    </div>
+
+    <!-- Status screen -->
+    <div id="status-screen">
+      <span class="status-icon">✅</span>
+      <h1>You're In!</h1>
+      <p class="status-name" id="registeredName"></p>
+
+      <div class="waiting-indicator">
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span class="dot"></span>
+        <span>Waiting for buzz…</span>
+      </div>
+
+      <div id="notif-banner" onclick="requestNotifPermission()">
+        <span>🔔</span>
+        <span id="notifText">Tap to enable notifications for buzzes</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    let audioCtx = null;
+    let buzzTimeout = null;
+
+    // Connection status
+    const connDot = document.getElementById('connDot');
+    const connLabel = document.getElementById('connLabel');
+
+    socket.on('connect', () => {
+      connDot.className = 'conn-dot connected';
+      connLabel.textContent = 'Connected';
+    });
+
+    socket.on('disconnect', () => {
+      connDot.className = 'conn-dot disconnected';
+      connLabel.textContent = 'Disconnected';
+    });
+
+    // Registration
+    function register() {
+      const name = document.getElementById('nameInput').value.trim();
+      if (!name) {
+        document.getElementById('nameInput').focus();
+        return;
+      }
+      document.getElementById('registerBtn').disabled = true;
+      socket.emit('register', { name });
+    }
+
+    document.getElementById('nameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') register();
+    });
+
+    socket.on('registered', ({ name }) => {
+      document.getElementById('register-screen').style.display = 'none';
+      document.getElementById('status-screen').style.display = 'block';
+      document.getElementById('registeredName').textContent = `Hello, ${name} 👋`;
+      checkNotifPermission();
+      // Unlock audio context on registration (user gesture has happened)
+      unlockAudio();
+    });
+
+    // Notification permission
+    function checkNotifPermission() {
+      const banner = document.getElementById('notif-banner');
+      const text = document.getElementById('notifText');
+      if (!('Notification' in window)) {
+        banner.style.display = 'none';
+        return;
+      }
+      if (Notification.permission === 'granted') {
+        banner.className = 'granted';
+        text.textContent = '✓ Notifications enabled';
+      } else if (Notification.permission === 'denied') {
+        text.textContent = '⛔ Notifications blocked — enable in browser settings';
+      }
+    }
+
+    async function requestNotifPermission() {
+      if (!('Notification' in window)) return;
+      if (Notification.permission === 'granted') return;
+      const result = await Notification.requestPermission();
+      checkNotifPermission();
+    }
+
+    // Audio
+    function unlockAudio() {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      // Play silent buffer to unlock
+      const buf = audioCtx.createBuffer(1, 1, 22050);
+      const src = audioCtx.createBufferSource();
+      src.buffer = buf;
+      src.connect(audioCtx.destination);
+      src.start(0);
+    }
+
+    function playBuzzSound() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+
+      function oneBuzz(startTime, freq, duration) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, startTime);
+        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, startTime + duration * 0.5);
+
+        gain.gain.setValueAtTime(0.9, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+
+        osc.start(startTime);
+        osc.stop(startTime + duration + 0.01);
+      }
+
+      const t = audioCtx.currentTime;
+      oneBuzz(t,        160, 0.28);
+      oneBuzz(t + 0.35, 160, 0.28);
+      oneBuzz(t + 0.70, 160, 0.45);
+    }
+
+    // Vibrate
+    function vibrate() {
+      if ('vibrate' in navigator) {
+        navigator.vibrate([300, 100, 300, 100, 500]);
+      }
+    }
+
+    // Show notification
+    function showNotification(message) {
+      if (Notification.permission === 'granted') {
+        new Notification('📳 BUZZ!', {
+          body: message,
+          icon: '/favicon.ico',
+          vibrate: [300, 100, 300],
+          requireInteraction: true,
+        });
+      }
+    }
+
+    // Buzz overlay
+    function showBuzzOverlay(message) {
+      document.getElementById('buzzMsg').textContent = message;
+      const overlay = document.getElementById('buzz-overlay');
+      overlay.classList.add('visible');
+      document.body.classList.add('buzzing');
+
+      // Auto-dismiss after 8 seconds
+      clearTimeout(buzzTimeout);
+      buzzTimeout = setTimeout(dismissBuzz, 8000);
+    }
+
+    function dismissBuzz() {
+      document.getElementById('buzz-overlay').classList.remove('visible');
+      document.body.classList.remove('buzzing');
+      clearTimeout(buzzTimeout);
+    }
+
+    // Receive buzz
+    socket.on('buzzed', ({ message }) => {
+      playBuzzSound();
+      vibrate();
+      showBuzzOverlay(message || 'BUZZ! The organiser is calling you!');
+      showNotification(message || 'BUZZ! The organiser is calling you!');
+    });
+  </script>
+</body>
+</html>
