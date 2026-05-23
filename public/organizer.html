@@ -11,7 +11,6 @@
       --bg: #0f0f1a;
       --card: #1a1a2e;
       --accent: #e94560;
-      --accent2: #0f3460;
       --text: #eaeaea;
       --muted: #888;
       --green: #00d4aa;
@@ -26,7 +25,7 @@
       padding: 20px;
     }
 
-    /* Login screen */
+    /* Login */
     #login-screen {
       display: flex;
       align-items: center;
@@ -46,12 +45,9 @@
     }
 
     .logo { font-size: 52px; margin-bottom: 12px; }
-
     h1 { font-size: 1.7rem; font-weight: 700; margin-bottom: 6px; }
-
     .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; }
 
-    input[type="text"],
     input[type="password"] {
       width: 100%;
       background: rgba(255,255,255,0.07);
@@ -67,17 +63,10 @@
       letter-spacing: 6px;
     }
 
-    input[type="text"]:focus,
     input[type="password"]:focus { border-color: var(--accent); }
-
     input::placeholder { letter-spacing: 0; color: var(--muted); font-size: 1rem; }
 
-    .error-msg {
-      color: var(--accent);
-      font-size: 0.88rem;
-      margin-bottom: 10px;
-      min-height: 20px;
-    }
+    .error-msg { color: var(--accent); font-size: 0.88rem; margin-bottom: 10px; min-height: 20px; }
 
     button {
       width: 100%;
@@ -108,13 +97,7 @@
       gap: 12px;
     }
 
-    .top-bar h2 {
-      font-size: 1.4rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
+    .top-bar h2 { font-size: 1.4rem; font-weight: 700; }
 
     .conn-chip {
       display: flex;
@@ -128,9 +111,8 @@
       color: var(--green);
     }
 
-    .conn-dot {
-      width: 8px;
-      height: 8px;
+    .conn-dot-live {
+      width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--green);
       animation: blink 2s ease-in-out infinite;
@@ -147,9 +129,7 @@
       gap: 20px;
     }
 
-    @media (max-width: 700px) {
-      .grid { grid-template-columns: 1fr; }
-    }
+    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
 
     .panel {
       background: var(--card);
@@ -158,7 +138,7 @@
     }
 
     .panel h3 {
-      font-size: 1rem;
+      font-size: 0.85rem;
       font-weight: 600;
       color: var(--muted);
       text-transform: uppercase;
@@ -166,18 +146,15 @@
       margin-bottom: 16px;
     }
 
-    /* QR panel */
-    .qr-wrap {
-      text-align: center;
-    }
+    /* QR */
+    .qr-wrap { text-align: center; }
 
     #qrImg {
-      width: 220px;
-      height: 220px;
+      width: 200px; height: 200px;
       border-radius: 12px;
       background: #fff;
       padding: 8px;
-      margin: 0 auto 14px;
+      margin: 0 auto 12px;
       display: block;
     }
 
@@ -188,18 +165,13 @@
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
       padding: 8px 10px;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
       cursor: pointer;
       transition: background 0.2s;
     }
 
     .join-url:hover { background: rgba(255,255,255,0.08); }
-
-    .copy-hint {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-bottom: 12px;
-    }
+    .copy-hint { font-size: 0.75rem; color: var(--muted); }
 
     /* Buzz all */
     .buzz-all-btn {
@@ -213,15 +185,11 @@
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: transform 0.15s, box-shadow 0.15s;
       box-shadow: 0 4px 20px rgba(233,69,96,0.3);
+      transition: transform 0.15s, box-shadow 0.15s;
     }
 
-    .buzz-all-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 28px rgba(233,69,96,0.5);
-    }
-
+    .buzz-all-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(233,69,96,0.5); }
     .buzz-all-btn:active { transform: scale(0.97); }
 
     .buzz-all-btn.fired {
@@ -233,28 +201,39 @@
       to   { background: #ff7096; }
     }
 
-    /* Participants list */
-    .participants-panel {
-      grid-column: 1 / -1;
+    /* Participants */
+    .participants-panel { grid-column: 1 / -1; }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
     }
 
-    .count-badge {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
+    .panel-header h3 { margin-bottom: 0; }
+
+    .counts {
+      display: flex;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .badge {
       border-radius: 50px;
       padding: 2px 10px;
-      font-size: 0.8rem;
       font-weight: 700;
-      margin-left: 8px;
     }
+
+    .badge-online  { background: rgba(0,212,170,0.15); color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
+    .badge-total   { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
 
     #participantsList {
       list-style: none;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      max-height: 480px;
+      gap: 8px;
+      max-height: 500px;
       overflow-y: auto;
     }
 
@@ -265,15 +244,17 @@
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
       border-radius: 12px;
-      padding: 12px 16px;
-      transition: background 0.2s;
+      padding: 12px 14px;
+      transition: background 0.2s, border-color 0.2s;
       animation: slideIn 0.25s ease-out;
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-8px); }
+      from { opacity: 0; transform: translateY(-6px); }
       to   { opacity: 1; transform: translateY(0); }
     }
+
+    .p-item.offline { opacity: 0.5; }
 
     .p-item.buzzed-flash {
       animation: itemFlash 0.15s ease 4 alternate;
@@ -285,46 +266,71 @@
     }
 
     .avatar {
-      width: 40px;
-      height: 40px;
+      width: 38px; height: 38px;
       border-radius: 50%;
-      background: var(--accent2);
+      background: #0f3460;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 1rem;
+      font-size: 0.9rem;
       color: #a8c8ff;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .online-dot {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--card);
+    }
+
+    .online-dot.on  { background: var(--green); }
+    .online-dot.off { background: #555; }
+
+    .p-info { flex: 1; min-width: 0; }
+
+    .p-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .p-meta {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .status-label {
+      font-size: 0.72rem;
+      border-radius: 50px;
+      padding: 2px 8px;
+      font-weight: 600;
       flex-shrink: 0;
     }
 
-    .p-name {
-      flex: 1;
-      font-size: 1rem;
-      font-weight: 500;
-    }
-
-    .p-time {
-      font-size: 0.75rem;
-      color: var(--muted);
-    }
+    .status-label.on  { background: rgba(0,212,170,0.15); color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
+    .status-label.off { background: rgba(255,255,255,0.05); color: #555; border: 1px solid var(--border); }
 
     .buzz-btn {
       background: rgba(233,69,96,0.15);
       border: 1px solid rgba(233,69,96,0.4);
       color: var(--accent);
       border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.85rem;
+      padding: 7px 12px;
+      font-size: 0.82rem;
       font-weight: 700;
       width: auto;
-      transition: background 0.15s;
       flex-shrink: 0;
     }
 
-    .buzz-btn:hover {
-      background: rgba(233,69,96,0.3);
-    }
+    .buzz-btn:hover { background: rgba(233,69,96,0.3); }
+    .buzz-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
 
     .empty-state {
       text-align: center;
@@ -333,77 +339,63 @@
     }
 
     .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-    .empty-state p { font-size: 0.95rem; }
   </style>
 </head>
 <body>
 
-  <!-- Login -->
   <div id="login-screen">
     <div class="login-card">
       <div class="logo">📳</div>
       <h1>Organiser Login</h1>
       <p class="subtitle">Enter your PIN to access the dashboard</p>
-      <input
-        type="password"
-        id="pinInput"
-        placeholder="Enter PIN"
-        maxlength="10"
-        autocomplete="off"
-        autofocus
-      />
+      <input type="password" id="pinInput" placeholder="Enter PIN" maxlength="10" autocomplete="off" autofocus />
       <p class="error-msg" id="errorMsg"></p>
       <button onclick="login()">Enter Dashboard</button>
     </div>
   </div>
 
-  <!-- Dashboard -->
   <div id="dashboard">
     <div class="top-bar">
       <h2>📳 Buzzer Dashboard</h2>
       <div class="conn-chip">
-        <span class="conn-dot"></span>
+        <span class="conn-dot-live"></span>
         <span id="connLabel">Live</span>
       </div>
     </div>
 
     <div class="grid">
 
-      <!-- QR Code panel -->
       <div class="panel qr-wrap">
         <h3>Scan to Join</h3>
-        <img id="qrImg" src="" alt="Loading QR…" />
+        <img id="qrImg" src="" alt="Loading…" />
         <div class="join-url" id="joinUrl" onclick="copyUrl()">Loading…</div>
         <div class="copy-hint">Tap URL to copy</div>
       </div>
 
-      <!-- Buzz All panel -->
-      <div class="panel" style="display:flex;flex-direction:column;justify-content:space-between;gap:16px;">
+      <div class="panel" style="display:flex;flex-direction:column;gap:14px;">
         <h3>Quick Actions</h3>
-
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;">
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;">
           <button class="buzz-all-btn" id="buzzAllBtn" onclick="buzzAll()">
             📳 BUZZ EVERYONE
           </button>
-
-          <div style="text-align:center;color:var(--muted);font-size:0.82rem;">
-            Sends a buzz alert to all registered participants at once
+          <div style="text-align:center;color:var(--muted);font-size:0.8rem;">
+            Buzzes all currently online participants
           </div>
         </div>
-
-        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:14px;font-size:0.85rem;color:var(--muted);line-height:1.6;">
+        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;font-size:0.82rem;color:var(--muted);line-height:1.6;">
           <strong style="color:var(--text);">How it works</strong><br>
-          Participants scan the QR code and register with their name.
-          Use the buttons below to buzz individuals, or use "Buzz Everyone" above.
+          Participants scan the QR code, enter their name and mobile number, and wait. Offline participants reconnect automatically when they reopen the page.
         </div>
       </div>
 
-      <!-- Participants list -->
       <div class="panel participants-panel">
-        <h3>
-          Participants
-          <span class="count-badge" id="countBadge">0</span>
-        </h3>
+        <div class="panel-header">
+          <h3>Participants</h3>
+          <div class="counts">
+            <span class="badge badge-online" id="onlineCount">0 online</span>
+            <span class="badge badge-total"  id="totalCount">0 total</span>
+          </div>
+        </div>
         <ul id="participantsList">
           <li class="empty-state">
             <div class="icon">📱</div>
@@ -429,6 +421,7 @@
     function login() {
       const pin = document.getElementById('pinInput').value.trim();
       if (!pin) return;
+      sessionStorage.setItem('bzpin', pin);
       socket.emit('join-organizer', { pin });
     }
 
@@ -439,7 +432,7 @@
       loadQR();
     });
 
-    socket.on('auth-error', (msg) => {
+    socket.on('auth-error', msg => {
       document.getElementById('errorMsg').textContent = msg || 'Invalid PIN';
       document.getElementById('pinInput').value = '';
       document.getElementById('pinInput').focus();
@@ -447,7 +440,6 @@
 
     socket.on('connect', () => {
       document.getElementById('connLabel').textContent = 'Live';
-      // Re-auth on reconnect
       if (authorized) {
         const pin = sessionStorage.getItem('bzpin');
         if (pin) socket.emit('join-organizer', { pin });
@@ -458,22 +450,25 @@
       document.getElementById('connLabel').textContent = 'Reconnecting…';
     });
 
-    socket.on('participants-update', (list) => {
+    socket.on('participants-update', list => {
       participants = list;
       renderParticipants();
     });
 
-    // Store pin for reconnect
-    const origLogin = login;
+    socket.on('buzz-sent', ({ targetToken }) => {
+      if (targetToken === 'all') {
+        document.querySelectorAll('.p-item').forEach(el => flashItem(el));
+      } else {
+        const el = document.getElementById(`pitem-${targetToken}`);
+        if (el) flashItem(el);
+      }
+    });
 
-    function login() {
-      const pin = document.getElementById('pinInput').value.trim();
-      if (!pin) return;
-      sessionStorage.setItem('bzpin', pin);
-      socket.emit('join-organizer', { pin });
+    function flashItem(el) {
+      el.classList.add('buzzed-flash');
+      setTimeout(() => el.classList.remove('buzzed-flash'), 800);
     }
 
-    // QR Code
     async function loadQR() {
       try {
         const res = await fetch('/qr');
@@ -481,7 +476,7 @@
         document.getElementById('qrImg').src = data.qr;
         joinUrl = data.url;
         document.getElementById('joinUrl').textContent = data.url;
-      } catch (e) {
+      } catch {
         document.getElementById('qrImg').alt = 'Failed to load QR';
       }
     }
@@ -496,36 +491,26 @@
       });
     }
 
-    // Buzz all
     function buzzAll() {
-      socket.emit('buzz', { targetSocketId: 'all' });
+      socket.emit('buzz', { targetToken: 'all' });
       const btn = document.getElementById('buzzAllBtn');
       btn.classList.add('fired');
       setTimeout(() => btn.classList.remove('fired'), 600);
-
-      // Flash all participant rows
-      document.querySelectorAll('.p-item').forEach(el => {
-        el.classList.add('buzzed-flash');
-        setTimeout(() => el.classList.remove('buzzed-flash'), 800);
-      });
     }
 
-    // Buzz individual
-    function buzzOne(socketId, itemEl) {
-      socket.emit('buzz', { targetSocketId: socketId });
-      if (itemEl) {
-        itemEl.classList.add('buzzed-flash');
-        setTimeout(() => itemEl.classList.remove('buzzed-flash'), 800);
-      }
+    function buzzOne(token) {
+      socket.emit('buzz', { targetToken: token });
     }
 
-    // Render list
     function renderParticipants() {
-      const list = document.getElementById('participantsList');
-      const badge = document.getElementById('countBadge');
-      badge.textContent = participants.length;
+      const list        = document.getElementById('participantsList');
+      const onlineCount = participants.filter(p => p.online).length;
+      const totalCount  = participants.length;
 
-      if (participants.length === 0) {
+      document.getElementById('onlineCount').textContent = `${onlineCount} online`;
+      document.getElementById('totalCount').textContent  = `${totalCount} total`;
+
+      if (totalCount === 0) {
         list.innerHTML = `
           <li class="empty-state">
             <div class="icon">📱</div>
@@ -534,18 +519,33 @@
         return;
       }
 
-      // Sort newest first
-      const sorted = [...participants].sort((a, b) => b.joinedAt - a.joinedAt);
+      // Online first, then offline; within each group sort by join time
+      const sorted = [...participants].sort((a, b) => {
+        if (a.online !== b.online) return a.online ? -1 : 1;
+        return new Date(a.joinedAt) - new Date(b.joinedAt);
+      });
 
       list.innerHTML = sorted.map(p => {
         const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-        const joined = formatTime(p.joinedAt);
+        const joined   = formatTime(p.joinedAt);
+        const safeToken = escAttr(p.token);
         return `
-          <li class="p-item" id="pitem-${p.socketId}">
-            <div class="avatar">${initials}</div>
-            <div class="p-name">${escHtml(p.name)}</div>
-            <div class="p-time">${joined}</div>
-            <button class="buzz-btn" onclick="buzzOne('${p.socketId}', document.getElementById('pitem-${p.socketId}'))">
+          <li class="p-item ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
+            <div class="avatar">
+              ${escHtml(initials)}
+              <span class="online-dot ${p.online ? 'on' : 'off'}"></span>
+            </div>
+            <div class="p-info">
+              <div class="p-name">${escHtml(p.name)}</div>
+              <div class="p-meta">${escHtml(p.mobile)} · joined ${joined}</div>
+            </div>
+            <span class="status-label ${p.online ? 'on' : 'off'}">${p.online ? 'Online' : 'Offline'}</span>
+            <button
+              class="buzz-btn"
+              onclick="buzzOne('${safeToken}')"
+              ${p.online ? '' : 'disabled'}
+              title="${p.online ? 'Send buzz' : 'Participant is offline'}"
+            >
               📳 Buzz
             </button>
           </li>`;
@@ -553,12 +553,18 @@
     }
 
     function formatTime(ts) {
-      const d = new Date(ts);
-      return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      if (!ts) return '';
+      return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
     function escHtml(str) {
-      return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+      return String(str).replace(/[&<>"']/g, c =>
+        ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])
+      );
+    }
+
+    function escAttr(str) {
+      return String(str).replace(/[^a-f0-9]/gi, '');
     }
   </script>
 </body>

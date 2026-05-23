@@ -27,7 +27,6 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      transition: background 0.3s;
     }
 
     body.buzzing {
@@ -49,75 +48,61 @@
       text-align: center;
     }
 
-    .logo {
-      font-size: 48px;
-      margin-bottom: 8px;
-    }
+    .logo { font-size: 48px; margin-bottom: 8px; }
 
-    h1 {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 6px;
-      color: var(--text);
-    }
+    h1 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; }
 
-    .subtitle {
-      color: var(--muted);
-      font-size: 0.9rem;
-      margin-bottom: 28px;
-    }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-bottom: 24px; }
 
-    /* Notice banner */
     .notice {
       background: rgba(233,69,96,0.12);
       border: 1px solid rgba(233,69,96,0.35);
       border-radius: 12px;
       padding: 14px 16px;
-      margin-bottom: 24px;
+      margin-bottom: 22px;
       font-size: 0.85rem;
       line-height: 1.5;
       color: #ffb3c1;
       text-align: left;
     }
 
-    .notice strong {
+    .notice strong { display: block; margin-bottom: 4px; font-size: 0.95rem; color: var(--accent); }
+    .notice ul { list-style: none; padding: 0; }
+    .notice ul li::before { content: '→ '; color: var(--accent); font-weight: bold; }
+
+    .field { margin-bottom: 14px; text-align: left; }
+
+    label {
       display: block;
-      margin-bottom: 4px;
-      font-size: 0.95rem;
-      color: var(--accent);
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .notice ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    .notice ul li::before {
-      content: '→ ';
-      color: var(--accent);
-      font-weight: bold;
-    }
-
-    /* Form */
-    input[type="text"] {
+    input[type="text"],
+    input[type="tel"] {
       width: 100%;
       background: rgba(255,255,255,0.07);
       border: 2px solid rgba(255,255,255,0.1);
       border-radius: 12px;
-      padding: 14px 18px;
-      font-size: 1.1rem;
+      padding: 13px 16px;
+      font-size: 1rem;
       color: var(--text);
       outline: none;
       transition: border-color 0.2s;
-      margin-bottom: 16px;
     }
 
-    input[type="text"]:focus {
-      border-color: var(--accent);
-    }
+    input:focus { border-color: var(--accent); }
+    input::placeholder { color: var(--muted); }
+    input.error { border-color: var(--accent) !important; }
 
-    input[type="text"]::placeholder {
-      color: var(--muted);
+    .field-error {
+      font-size: 0.8rem;
+      color: var(--accent);
+      margin-top: 5px;
+      min-height: 18px;
     }
 
     button {
@@ -131,32 +116,23 @@
       font-weight: 700;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
-      letter-spacing: 0.5px;
+      margin-top: 4px;
     }
 
     button:hover { opacity: 0.9; }
     button:active { transform: scale(0.98); }
     button:disabled { opacity: 0.4; cursor: default; }
 
-    .btn-secondary {
-      background: rgba(255,255,255,0.08);
-      margin-top: 10px;
-      font-weight: 500;
-      font-size: 0.9rem;
-    }
-
-    /* Status screen (after registration) */
+    /* Status screen */
     #status-screen { display: none; }
 
-    .status-icon {
-      font-size: 64px;
-      margin-bottom: 12px;
-      display: block;
-    }
+    .status-icon { font-size: 64px; margin-bottom: 12px; display: block; }
 
-    .status-name {
-      font-size: 1.1rem;
-      color: var(--muted);
+    .status-name { font-size: 1rem; color: var(--muted); margin-bottom: 6px; }
+
+    .status-mobile {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.3);
       margin-bottom: 24px;
     }
 
@@ -171,8 +147,7 @@
     }
 
     .dot {
-      width: 10px;
-      height: 10px;
+      width: 10px; height: 10px;
       border-radius: 50%;
       background: var(--green);
       animation: pulse 1.4s ease-in-out infinite;
@@ -186,6 +161,21 @@
       50%       { opacity: 1;   transform: scale(1.2); }
     }
 
+    /* Returning user banner */
+    #returning-banner {
+      display: none;
+      background: rgba(0,212,170,0.1);
+      border: 1px solid rgba(0,212,170,0.3);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+      font-size: 0.9rem;
+      color: var(--green);
+      text-align: left;
+    }
+
+    #returning-banner strong { display: block; margin-bottom: 3px; }
+
     /* Buzz overlay */
     #buzz-overlay {
       display: none;
@@ -196,43 +186,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      animation: overlayIn 0.15s ease-out;
     }
 
     #buzz-overlay.visible { display: flex; }
 
-    @keyframes overlayIn {
-      from { opacity: 0; transform: scale(1.05); }
-      to   { opacity: 1; transform: scale(1); }
-    }
-
-    .buzz-icon {
-      font-size: 100px;
-      animation: shake 0.1s linear infinite;
-    }
+    .buzz-icon { font-size: 100px; animation: shake 0.1s linear infinite; }
 
     @keyframes shake {
       0%   { transform: translate(-4px, 0) rotate(-3deg); }
-      25%  { transform: translate(4px, 0) rotate(3deg); }
+      25%  { transform: translate(4px, 0)  rotate(3deg);  }
       50%  { transform: translate(-4px, 0) rotate(-3deg); }
-      75%  { transform: translate(4px, 0) rotate(3deg); }
+      75%  { transform: translate(4px, 0)  rotate(3deg);  }
       100% { transform: translate(-4px, 0) rotate(-3deg); }
     }
 
-    .buzz-text {
-      font-size: 2.2rem;
-      font-weight: 900;
-      color: #fff;
-      margin-top: 16px;
-      letter-spacing: 2px;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.3);
-    }
-
-    .buzz-sub {
-      font-size: 1.05rem;
-      color: rgba(255,255,255,0.85);
-      margin-top: 8px;
-    }
+    .buzz-text { font-size: 2.2rem; font-weight: 900; color: #fff; margin-top: 16px; letter-spacing: 2px; }
+    .buzz-sub  { font-size: 1.05rem; color: rgba(255,255,255,0.85); margin-top: 8px; }
 
     .buzz-dismiss {
       margin-top: 40px;
@@ -247,7 +216,7 @@
 
     .buzz-dismiss:hover { background: rgba(255,255,255,0.3); }
 
-    /* Notif perm banner */
+    /* Notif banner */
     #notif-banner {
       background: rgba(15,52,96,0.5);
       border: 1px solid rgba(15,52,96,0.9);
@@ -260,16 +229,13 @@
       align-items: center;
       gap: 10px;
       cursor: pointer;
-      transition: background 0.2s;
     }
 
-    #notif-banner:hover { background: rgba(15,52,96,0.7); }
     #notif-banner.granted { border-color: var(--green); color: var(--green); cursor: default; }
 
     .conn-status {
       position: fixed;
-      top: 12px;
-      right: 14px;
+      top: 12px; right: 14px;
       font-size: 0.75rem;
       color: var(--muted);
       display: flex;
@@ -277,15 +243,23 @@
       gap: 5px;
     }
 
-    .conn-dot {
-      width: 8px;
-      height: 8px;
+    .conn-dot { width: 8px; height: 8px; border-radius: 50%; background: #888; }
+    .conn-dot.connected    { background: var(--green); }
+    .conn-dot.disconnected { background: var(--accent); }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 18px; height: 18px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
       border-radius: 50%;
-      background: #888;
+      animation: spin 0.7s linear infinite;
+      vertical-align: middle;
+      margin-right: 6px;
     }
 
-    .conn-dot.connected { background: var(--green); }
-    .conn-dot.disconnected { background: var(--accent); }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
@@ -295,7 +269,6 @@
     <span id="connLabel">Connecting…</span>
   </div>
 
-  <!-- Buzz overlay -->
   <div id="buzz-overlay">
     <div class="buzz-icon">📳</div>
     <div class="buzz-text">BUZZ!</div>
@@ -311,6 +284,11 @@
       <h1>Join Session</h1>
       <p class="subtitle">Register to receive buzzes from the organiser</p>
 
+      <div id="returning-banner">
+        <strong>👋 Welcome back!</strong>
+        Reconnecting you automatically…
+      </div>
+
       <div class="notice">
         <strong>⚠️ Before you register:</strong>
         <ul>
@@ -321,14 +299,18 @@
         </ul>
       </div>
 
-      <input
-        type="text"
-        id="nameInput"
-        placeholder="Enter your name"
-        maxlength="40"
-        autocomplete="off"
-        autofocus
-      />
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="nameInput" placeholder="e.g. Jane Smith" maxlength="40" autocomplete="name" />
+        <div class="field-error" id="nameError"></div>
+      </div>
+
+      <div class="field">
+        <label>Mobile Number</label>
+        <input type="tel" id="mobileInput" placeholder="e.g. 07700900123" maxlength="30" autocomplete="tel" />
+        <div class="field-error" id="mobileError"></div>
+      </div>
+
       <button id="registerBtn" onclick="register()">Register</button>
     </div>
 
@@ -337,6 +319,7 @@
       <span class="status-icon">✅</span>
       <h1>You're In!</h1>
       <p class="status-name" id="registeredName"></p>
+      <p class="status-mobile" id="registeredMobile"></p>
 
       <div class="waiting-indicator">
         <span class="dot"></span>
@@ -358,14 +341,21 @@
     const socket = io();
     let audioCtx = null;
     let buzzTimeout = null;
+    const TOKEN_KEY = 'buzzer_token';
 
     // Connection status
-    const connDot = document.getElementById('connDot');
+    const connDot   = document.getElementById('connDot');
     const connLabel = document.getElementById('connLabel');
 
     socket.on('connect', () => {
       connDot.className = 'conn-dot connected';
       connLabel.textContent = 'Connected';
+      // Try to reconnect with stored token
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) {
+        document.getElementById('returning-banner').style.display = 'block';
+        socket.emit('reconnect-token', { token });
+      }
     });
 
     socket.on('disconnect', () => {
@@ -373,38 +363,86 @@
       connLabel.textContent = 'Disconnected';
     });
 
+    // Token not recognised — clear it and show fresh form
+    socket.on('token-invalid', () => {
+      localStorage.removeItem(TOKEN_KEY);
+      document.getElementById('returning-banner').style.display = 'none';
+    });
+
     // Registration
     function register() {
-      const name = document.getElementById('nameInput').value.trim();
+      const name   = document.getElementById('nameInput').value.trim();
+      const mobile = document.getElementById('mobileInput').value.trim();
+
+      // Clear errors
+      document.getElementById('nameError').textContent   = '';
+      document.getElementById('mobileError').textContent = '';
+      document.getElementById('nameInput').classList.remove('error');
+      document.getElementById('mobileInput').classList.remove('error');
+
+      let valid = true;
       if (!name) {
-        document.getElementById('nameInput').focus();
-        return;
+        document.getElementById('nameError').textContent = 'Please enter your name.';
+        document.getElementById('nameInput').classList.add('error');
+        valid = false;
       }
-      document.getElementById('registerBtn').disabled = true;
-      socket.emit('register', { name });
+      if (!mobile) {
+        document.getElementById('mobileError').textContent = 'Please enter your mobile number.';
+        document.getElementById('mobileInput').classList.add('error');
+        valid = false;
+      }
+      if (!valid) return;
+
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner"></span>Registering…';
+      socket.emit('register', { name, mobile });
     }
 
     document.getElementById('nameInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') document.getElementById('mobileInput').focus();
+    });
+    document.getElementById('mobileInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') register();
     });
 
-    socket.on('registered', ({ name }) => {
+    socket.on('register-error', ({ field, message }) => {
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = false;
+      btn.textContent = 'Register';
+
+      if (field === 'mobile') {
+        document.getElementById('mobileError').textContent = message;
+        document.getElementById('mobileInput').classList.add('error');
+        document.getElementById('mobileInput').focus();
+      } else {
+        document.getElementById('nameError').textContent = message;
+      }
+    });
+
+    socket.on('registered', ({ name, token, returning }) => {
+      // Save token for future reconnects
+      localStorage.setItem(TOKEN_KEY, token);
+
+      // Show status screen
       document.getElementById('register-screen').style.display = 'none';
       document.getElementById('status-screen').style.display = 'block';
-      document.getElementById('registeredName').textContent = `Hello, ${name} 👋`;
+
+      const mobile = document.getElementById('mobileInput').value.trim();
+      document.getElementById('registeredName').textContent = returning
+        ? `Welcome back, ${name} 👋`
+        : `Hello, ${name} 👋`;
+      document.getElementById('registeredMobile').textContent = mobile || '';
+
       checkNotifPermission();
-      // Unlock audio context on registration (user gesture has happened)
       unlockAudio();
     });
 
-    // Notification permission
+    // Notifications
     function checkNotifPermission() {
       const banner = document.getElementById('notif-banner');
-      const text = document.getElementById('notifText');
-      if (!('Notification' in window)) {
-        banner.style.display = 'none';
-        return;
-      }
+      const text   = document.getElementById('notifText');
+      if (!('Notification' in window)) { banner.style.display = 'none'; return; }
       if (Notification.permission === 'granted') {
         banner.className = 'granted';
         text.textContent = '✓ Notifications enabled';
@@ -414,16 +452,14 @@
     }
 
     async function requestNotifPermission() {
-      if (!('Notification' in window)) return;
-      if (Notification.permission === 'granted') return;
-      const result = await Notification.requestPermission();
+      if (!('Notification' in window) || Notification.permission === 'granted') return;
+      await Notification.requestPermission();
       checkNotifPermission();
     }
 
     // Audio
     function unlockAudio() {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      // Play silent buffer to unlock
       const buf = audioCtx.createBuffer(1, 1, 22050);
       const src = audioCtx.createBufferSource();
       src.buffer = buf;
@@ -432,24 +468,19 @@
     }
 
     function playBuzzSound() {
-      if (!audioCtx) {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      }
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
       function oneBuzz(startTime, freq, duration) {
-        const osc = audioCtx.createOscillator();
+        const osc  = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain);
         gain.connect(audioCtx.destination);
-
         osc.type = 'sawtooth';
         osc.frequency.setValueAtTime(freq, startTime);
         osc.frequency.exponentialRampToValueAtTime(freq * 1.5, startTime + duration * 0.5);
-
         gain.gain.setValueAtTime(0.9, startTime);
         gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-
         osc.start(startTime);
         osc.stop(startTime + duration + 0.01);
       }
@@ -460,33 +491,23 @@
       oneBuzz(t + 0.70, 160, 0.45);
     }
 
-    // Vibrate
     function vibrate() {
-      if ('vibrate' in navigator) {
-        navigator.vibrate([300, 100, 300, 100, 500]);
-      }
+      if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 500]);
     }
 
-    // Show notification
     function showNotification(message) {
       if (Notification.permission === 'granted') {
         new Notification('📳 BUZZ!', {
           body: message,
-          icon: '/favicon.ico',
-          vibrate: [300, 100, 300],
           requireInteraction: true,
         });
       }
     }
 
-    // Buzz overlay
     function showBuzzOverlay(message) {
       document.getElementById('buzzMsg').textContent = message;
-      const overlay = document.getElementById('buzz-overlay');
-      overlay.classList.add('visible');
+      document.getElementById('buzz-overlay').classList.add('visible');
       document.body.classList.add('buzzing');
-
-      // Auto-dismiss after 8 seconds
       clearTimeout(buzzTimeout);
       buzzTimeout = setTimeout(dismissBuzz, 8000);
     }
@@ -497,7 +518,6 @@
       clearTimeout(buzzTimeout);
     }
 
-    // Receive buzz
     socket.on('buzzed', ({ message }) => {
       playBuzzSound();
       vibrate();
