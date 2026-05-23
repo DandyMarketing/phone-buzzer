@@ -203,7 +203,7 @@ io.on('connection', (socket) => {
           joinedAt: participant.joined_at,
         });
         socket.join('participants');
-        socket.emit('registered', { name: participant.name, token: participant.token, number: participant.id, returning: true });
+        socket.emit('registered', { name: participant.name, token: participant.token, number: participant.id, status: participant.status || 'pending', returning: true });
         io.to('organizers').emit('participants-update', await getParticipantsList());
       } else {
         socket.emit('token-invalid');
@@ -273,8 +273,24 @@ io.on('connection', (socket) => {
           [status, token]
         );
       }
+      // Notify the participant's socket if online
       for (const [sid, p] of onlineSockets.entries()) {
-        if (p.token === token) { p.status = status; break; }
+        if (p.token === token) {
+          p.status = status;
+          io.to(sid).emit('status-changed', { status });
+          break;
+        }
+      }
+      // Send push for 'done' (so they see the thank-you even if app is closed)
+      if (status === 'done') {
+        const sub = pushSubscriptions.get(token);
+        if (sub) {
+          webpush.sendNotification(sub, JSON.stringify({
+            title: '🙏 Thank you!',
+            body: 'You\'ve completed your visit. Thanks for participating!',
+            url: '/join',
+          })).catch(() => pushSubscriptions.delete(token));
+        }
       }
       io.to('organizers').emit('participants-update', await getParticipantsList());
     } catch (err) {

@@ -371,6 +371,26 @@
     </div>
   </div>
 
+  <!-- Thank-you screen (shown when organiser marks Done) -->
+  <div id="thankyou-screen" style="
+    display:none; position:fixed; inset:0; z-index:210;
+    background:linear-gradient(160deg, #1a4a8a, #0f0f1a);
+    flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:32px;">
+    <div style="font-size:96px;margin-bottom:18px;animation:gentleBounce 2s ease-in-out infinite;">🎉</div>
+    <h1 style="font-size:2rem;font-weight:900;color:#fff;margin-bottom:10px;letter-spacing:-0.5px;">Thank You!</h1>
+    <p style="font-size:1.1rem;color:rgba(255,255,255,0.85);max-width:340px;line-height:1.5;">
+      Thanks for participating. We hope you had a great time!
+    </p>
+    <p style="font-size:0.9rem;color:rgba(255,255,255,0.5);margin-top:32px;">You can now close this page.</p>
+  </div>
+  <style>
+    @keyframes gentleBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-8px) scale(1.04); }
+    }
+  </style>
+
   <!-- Queue number screen (shown after pressing Coming) -->
   <div id="queue-screen" style="
     display:none; position:fixed; inset:0; z-index:200;
@@ -579,10 +599,16 @@
       }
     });
 
-    socket.on('registered', ({ name, token, number, returning }) => {
+    socket.on('registered', ({ name, token, number, status, returning }) => {
       // Save token + number for future reconnects
       localStorage.setItem(TOKEN_KEY, token);
       if (number) localStorage.setItem(NUMBER_KEY, number);
+
+      // If they were already marked done before reconnecting, jump straight to thank-you
+      if (status === 'done') {
+        document.getElementById('thankyou-screen').style.display = 'flex';
+        return;
+      }
 
       // Show status screen
       document.getElementById('register-screen').style.display = 'none';
@@ -863,6 +889,18 @@
       const token = localStorage.getItem(TOKEN_KEY);
       if (token) socket.emit('leave-queue', { token });
     }
+
+    socket.on('status-changed', ({ status }) => {
+      if (status === 'done') {
+        // Close any other overlays and show thank-you
+        document.getElementById('buzz-overlay').classList.remove('visible');
+        document.getElementById('queue-screen').style.display = 'none';
+        document.body.classList.remove('buzzing');
+        document.getElementById('thankyou-screen').style.display = 'flex';
+        // Gentle vibration to draw attention
+        if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
+      }
+    });
 
     socket.on('left-queue', () => {
       localStorage.removeItem(TOKEN_KEY);
