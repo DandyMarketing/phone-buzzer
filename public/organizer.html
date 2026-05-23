@@ -15,6 +15,8 @@
       --muted: #888;
       --green: #00d4aa;
       --amber: #f5a623;
+      --blue:  #4a9eff;
+      --grey:  #6b7280;
       --border: rgba(255,255,255,0.08);
     }
 
@@ -283,9 +285,11 @@
       letter-spacing: 0.8px;
     }
 
-    .section-label.available { color: var(--text); }
-    .section-label.coming    { color: var(--green); }
-    .section-label.declined  { color: var(--accent); }
+    .section-label.available  { color: var(--text); }
+    .section-label.coming     { color: var(--green); }
+    .section-label.checkedin  { color: var(--blue); }
+    .section-label.done       { color: var(--grey); }
+    .section-label.declined   { color: var(--accent); }
 
     .section-count {
       font-size: 0.72rem;
@@ -294,9 +298,11 @@
       padding: 1px 8px;
     }
 
-    .section-count.available { background: rgba(255,255,255,0.08); color: var(--muted); }
-    .section-count.coming    { background: rgba(0,212,170,0.15);   color: var(--green); }
-    .section-count.declined  { background: rgba(233,69,96,0.15);   color: var(--accent); }
+    .section-count.available  { background: rgba(255,255,255,0.08); color: var(--muted); }
+    .section-count.coming     { background: rgba(0,212,170,0.15);   color: var(--green); }
+    .section-count.checkedin  { background: rgba(74,158,255,0.15);  color: var(--blue); }
+    .section-count.done       { background: rgba(107,114,128,0.2);  color: var(--grey); }
+    .section-count.declined   { background: rgba(233,69,96,0.15);   color: var(--accent); }
 
     .section-divider {
       flex: 1;
@@ -324,8 +330,10 @@
     }
 
     .p-item.offline { opacity: 0.45; }
-    .p-item.coming  { border-color: rgba(0,212,170,0.2);  background: rgba(0,212,170,0.05); }
-    .p-item.declined{ border-color: rgba(233,69,96,0.2);  background: rgba(233,69,96,0.05); }
+    .p-item.coming    { border-color: rgba(0,212,170,0.2);  background: rgba(0,212,170,0.05); }
+    .p-item.checkedin { border-color: rgba(74,158,255,0.25);background: rgba(74,158,255,0.07); }
+    .p-item.done      { border-color: rgba(107,114,128,0.2);background: rgba(107,114,128,0.05); opacity: 0.7; }
+    .p-item.declined  { border-color: rgba(233,69,96,0.2);  background: rgba(233,69,96,0.05); }
 
     .p-item.buzzed-flash { animation: itemFlash 0.15s ease 4 alternate; }
 
@@ -395,8 +403,38 @@
       padding: 3px 9px;
     }
 
-    .status-badge.coming  { background: rgba(0,212,170,0.15); color: var(--green);  border: 1px solid rgba(0,212,170,0.3); }
-    .status-badge.declined{ background: rgba(233,69,96,0.15); color: var(--accent); border: 1px solid rgba(233,69,96,0.3); }
+    .status-badge.coming    { background: rgba(0,212,170,0.15); color: var(--green);  border: 1px solid rgba(0,212,170,0.3); }
+    .status-badge.checkedin { background: rgba(74,158,255,0.15); color: var(--blue);  border: 1px solid rgba(74,158,255,0.3); }
+    .status-badge.done      { background: rgba(107,114,128,0.2); color: var(--grey);  border: 1px solid rgba(107,114,128,0.3); }
+    .status-badge.declined  { background: rgba(233,69,96,0.15); color: var(--accent); border: 1px solid rgba(233,69,96,0.3); }
+
+    .checkin-btn {
+      background: var(--blue);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      width: auto;
+      box-shadow: 0 2px 10px rgba(74,158,255,0.35);
+    }
+    .checkin-btn:hover { background: #6bb1ff; box-shadow: 0 3px 14px rgba(74,158,255,0.5); }
+    .checkin-btn:active { transform: scale(0.96); }
+
+    .done-btn {
+      background: var(--grey);
+      border: none;
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      width: auto;
+      box-shadow: 0 2px 10px rgba(107,114,128,0.3);
+    }
+    .done-btn:hover { background: #8b95a3; }
+    .done-btn:active { transform: scale(0.96); }
 
     .buzz-btn {
       background: var(--accent);
@@ -456,10 +494,12 @@
       border: 1px solid;
     }
 
-    .count-chip.total    { border-color: var(--border);              color: var(--muted);  background: rgba(255,255,255,0.04); }
-    .count-chip.online   { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.1); }
-    .count-chip.coming   { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.08); }
-    .count-chip.declined { border-color: rgba(233,69,96,0.3);        color: var(--accent); background: rgba(233,69,96,0.08); }
+    .count-chip.total     { border-color: var(--border);              color: var(--muted);  background: rgba(255,255,255,0.04); }
+    .count-chip.online    { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.1); }
+    .count-chip.coming    { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.08); }
+    .count-chip.checkedin { border-color: rgba(74,158,255,0.3);       color: var(--blue);   background: rgba(74,158,255,0.08); }
+    .count-chip.done      { border-color: rgba(107,114,128,0.3);      color: var(--grey);   background: rgba(107,114,128,0.1); }
+    .count-chip.declined  { border-color: rgba(233,69,96,0.3);        color: var(--accent); background: rgba(233,69,96,0.08); }
 
     .empty-section {
       font-size: 0.82rem;
@@ -641,6 +681,10 @@
       socket.emit('reset-status', { token });
     }
 
+    function setStatus(token, status) {
+      socket.emit('organizer-set-status', { token, status });
+    }
+
     function deleteParticipant(token, name) {
       if (!confirm(`Remove ${name} from the queue? This cannot be undone.`)) return;
       socket.emit('delete-participant', { token });
@@ -672,6 +716,8 @@
     function renderParticipants() {
       const available = participants.filter(p => p.status === 'pending');
       const coming    = participants.filter(p => p.status === 'coming');
+      const checkedin = participants.filter(p => p.status === 'checked-in');
+      const done      = participants.filter(p => p.status === 'done');
       const declined  = participants.filter(p => p.status === 'declined');
 
       const onlineCount = participants.filter(p => p.online).length;
@@ -681,6 +727,8 @@
         <span class="count-chip total">${participants.length} total</span>
         <span class="count-chip online">${onlineCount} online</span>
         <span class="count-chip coming">✅ ${coming.length} coming</span>
+        <span class="count-chip checkedin">🎟 ${checkedin.length} checked-in</span>
+        <span class="count-chip done">✔ ${done.length} done</span>
         <span class="count-chip declined">❌ ${declined.length} declined</span>
       `;
 
@@ -698,15 +746,22 @@
       sections.innerHTML = `
         ${renderSection('Available', 'available', available)}
         ${renderSection('Coming', 'coming', coming)}
+        ${renderSection('Checked-in', 'checkedin', checkedin)}
+        ${renderSection('Done', 'done', done)}
         ${renderSection('Declined', 'declined', declined)}
       `;
     }
 
     function renderSection(label, cls, list) {
-      const emoji = cls === 'coming' ? '✅' : cls === 'declined' ? '❌' : '📋';
+      const emoji = ({
+        coming:    '✅',
+        checkedin: '🎟',
+        done:      '✔',
+        declined:  '❌',
+      })[cls] || '📋';
       let sorted;
-      if (cls === 'coming') {
-        // Sort by confirmation time (queue order)
+      if (cls === 'coming' || cls === 'checkedin') {
+        // Sort by status-change time (queue order)
         sorted = [...list].sort((a, b) => new Date(a.statusUpdatedAt) - new Date(b.statusUpdatedAt));
       } else {
         // Sort: online first
@@ -722,7 +777,7 @@
         <div class="p-list">
           ${sorted.length === 0
             ? `<div class="empty-section">None yet</div>`
-            : sorted.map((p, i) => renderParticipant(p, cls, cls === 'coming' ? i + 1 : null)).join('')
+            : sorted.map((p, i) => renderParticipant(p, cls, (cls === 'coming' || cls === 'checkedin') ? i + 1 : null)).join('')
           }
         </div>
       `;
@@ -730,9 +785,9 @@
 
     function renderParticipant(p, sectionCls, queuePos) {
       const safeToken = escAttr(p.token);
-      const isAvailable = sectionCls === 'available';
-      const queueBadge = (sectionCls === 'coming' && queuePos != null)
-        ? `<span style="font-size:0.78rem;font-weight:800;background:var(--green);color:#0f0f1a;border-radius:50px;padding:4px 10px;margin-right:6px;">QUEUE ${queuePos}</span>`
+
+      const queueBadge = (queuePos != null && (sectionCls === 'coming' || sectionCls === 'checkedin'))
+        ? `<span style="font-size:0.78rem;font-weight:800;background:${sectionCls === 'coming' ? 'var(--green)' : 'var(--blue)'};color:#0f0f1a;border-radius:50px;padding:4px 10px;margin-right:6px;">${sectionCls === 'coming' ? 'QUEUE ' : 'IN '}${queuePos}</span>`
         : '';
 
       const numberDisplay = p.number
@@ -740,18 +795,51 @@
         : '?';
 
       const deleteButton = `<button class="delete-btn" onclick="deleteParticipant('${safeToken}', '${escHtml(p.name).replace(/'/g, '&#39;')}')" title="Remove from queue">🗑 Delete</button>`;
+      const resetButton  = `<button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>`;
 
-      const actionButtons = isAvailable
-        ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" title="${p.online ? 'Send buzz (in-app)' : 'Send buzz (push notification only)'}">
-             📳 BUZZ
-           </button>
-           ${deleteButton}`
-        : `${queueBadge}<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
-           <button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>
-           ${deleteButton}`;
+      let actionButtons;
+      if (sectionCls === 'available') {
+        actionButtons = `
+          <button class="buzz-btn" onclick="buzzOne('${safeToken}')" title="${p.online ? 'Send buzz (in-app)' : 'Send buzz (push notification only)'}">
+            📳 BUZZ
+          </button>
+          <button class="checkin-btn" onclick="setStatus('${safeToken}', 'checked-in')" title="Skip buzz, mark as checked-in">
+            🎟 Check-in
+          </button>
+          ${deleteButton}`;
+      } else if (sectionCls === 'coming') {
+        actionButtons = `
+          ${queueBadge}
+          <button class="checkin-btn" onclick="setStatus('${safeToken}', 'checked-in')" title="Mark as arrived">
+            🎟 Check-in
+          </button>
+          ${resetButton}
+          ${deleteButton}`;
+      } else if (sectionCls === 'checkedin') {
+        actionButtons = `
+          ${queueBadge}
+          <button class="done-btn" onclick="setStatus('${safeToken}', 'done')" title="Mark as complete">
+            ✔ Done
+          </button>
+          ${resetButton}
+          ${deleteButton}`;
+      } else if (sectionCls === 'done') {
+        actionButtons = `
+          <span class="status-badge done">✔ Done</span>
+          ${resetButton}
+          ${deleteButton}`;
+      } else {
+        // declined
+        actionButtons = `
+          <span class="status-badge declined">❌ Declined</span>
+          ${resetButton}
+          ${deleteButton}`;
+      }
+
+      const itemCls = sectionCls === 'available' ? '' : sectionCls;
 
       return `
-        <div class="p-item ${sectionCls === 'available' ? '' : sectionCls} ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
+        <div class="p-item ${itemCls} ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
           <div class="avatar" title="Serial number">
             ${numberDisplay}
             <span class="online-dot ${p.online ? 'on' : 'off'}"></span>

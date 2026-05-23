@@ -263,6 +263,25 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Organiser sets a participant's status (check-in, done, etc.)
+  socket.on('organizer-set-status', async ({ token, status }) => {
+    if (!['pending', 'coming', 'checked-in', 'done', 'declined'].includes(status)) return;
+    try {
+      if (pool) {
+        await pool.query(
+          'UPDATE participants SET status = $1, status_updated_at = NOW() WHERE token = $2',
+          [status, token]
+        );
+      }
+      for (const [sid, p] of onlineSockets.entries()) {
+        if (p.token === token) { p.status = status; break; }
+      }
+      io.to('organizers').emit('participants-update', await getParticipantsList());
+    } catch (err) {
+      console.error('organizer-set-status error:', err);
+    }
+  });
+
   // Organiser deletes a participant entirely
   socket.on('delete-participant', async ({ token }) => {
     try {
