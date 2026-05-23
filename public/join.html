@@ -382,7 +382,13 @@
     <p style="font-size:1.1rem;color:rgba(255,255,255,0.85);max-width:340px;line-height:1.5;">
       Thanks for participating. We hope you had a great time!
     </p>
-    <p style="font-size:0.9rem;color:rgba(255,255,255,0.5);margin-top:32px;">You can now close this page.</p>
+    <button onclick="rejoinSession()" style="
+      margin-top:36px;background:#fff;color:#1a4a8a;border:none;
+      padding:14px 28px;border-radius:14px;font-size:1rem;font-weight:800;
+      cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.3);width:auto;">
+      ↻ Register Again
+    </button>
+    <p style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-top:18px;">Want another go? Tap to rejoin the session.</p>
   </div>
   <style>
     @keyframes gentleBounce {
@@ -599,16 +605,10 @@
       }
     });
 
-    socket.on('registered', ({ name, token, number, status, returning }) => {
+    socket.on('registered', ({ name, token, number, returning }) => {
       // Save token + number for future reconnects
       localStorage.setItem(TOKEN_KEY, token);
       if (number) localStorage.setItem(NUMBER_KEY, number);
-
-      // If they were already marked done before reconnecting, jump straight to thank-you
-      if (status === 'done') {
-        document.getElementById('thankyou-screen').style.display = 'flex';
-        return;
-      }
 
       // Show status screen
       document.getElementById('register-screen').style.display = 'none';
@@ -892,6 +892,9 @@
 
     socket.on('status-changed', ({ status }) => {
       if (status === 'done') {
+        // Server has deleted the record — clear local token so they can register fresh
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(NUMBER_KEY);
         // Close any other overlays and show thank-you
         document.getElementById('buzz-overlay').classList.remove('visible');
         document.getElementById('queue-screen').style.display = 'none';
@@ -901,6 +904,19 @@
         if ('vibrate' in navigator) navigator.vibrate([100, 50, 100]);
       }
     });
+
+    function rejoinSession() {
+      // Hide thank-you, reset register form, show register screen
+      document.getElementById('thankyou-screen').style.display = 'none';
+      document.getElementById('status-screen').style.display = 'none';
+      document.getElementById('register-screen').style.display = 'block';
+      document.getElementById('nameInput').value = '';
+      document.getElementById('mobileInput').value = '';
+      document.getElementById('returning-banner').style.display = 'none';
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = false;
+      btn.textContent = 'Register';
+    }
 
     socket.on('left-queue', () => {
       localStorage.removeItem(TOKEN_KEY);

@@ -281,15 +281,25 @@ io.on('connection', (socket) => {
           break;
         }
       }
-      // Send push for 'done' (so they see the thank-you even if app is closed)
+      // Send push for 'done' (so they see the thank-you even if app is closed),
+      // then delete the participant so they're free to rejoin with the same number
       if (status === 'done') {
         const sub = pushSubscriptions.get(token);
         if (sub) {
-          webpush.sendNotification(sub, JSON.stringify({
-            title: '🙏 Thank you!',
-            body: 'You\'ve completed your visit. Thanks for participating!',
-            url: '/join',
-          })).catch(() => pushSubscriptions.delete(token));
+          try {
+            await webpush.sendNotification(sub, JSON.stringify({
+              title: '🙏 Thank you!',
+              body: 'You\'ve completed your visit. Thanks for participating!',
+              url: '/join',
+            }));
+          } catch (_) {}
+        }
+        if (pool) {
+          await pool.query('DELETE FROM participants WHERE token = $1', [token]);
+        }
+        pushSubscriptions.delete(token);
+        for (const [sid, p] of onlineSockets.entries()) {
+          if (p.token === token) { onlineSockets.delete(sid); break; }
         }
       }
       io.to('organizers').emit('participants-update', await getParticipantsList());
