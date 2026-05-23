@@ -349,6 +349,22 @@
     </div>
   </div>
 
+  <!-- Queue number screen (shown after pressing Coming) -->
+  <div id="queue-screen" style="
+    display:none; position:fixed; inset:0; z-index:200;
+    background:var(--card); flex-direction:column;
+    align-items:center; justify-content:center;
+    text-align:center; padding:32px;">
+    <div style="font-size:0.85rem;color:var(--muted);text-transform:uppercase;letter-spacing:3px;margin-bottom:8px;">Your Queue Number</div>
+    <div id="queueNumberBig" style="font-size:min(38vw,160px);font-weight:900;color:var(--accent);line-height:1;"></div>
+    <div style="font-size:1rem;color:var(--muted);margin-top:16px;">Show this to the organiser when called</div>
+    <button onclick="document.getElementById('queue-screen').style.display='none'" style="
+      margin-top:40px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);
+      color:var(--muted);padding:12px 28px;border-radius:12px;font-size:0.9rem;cursor:pointer;width:auto;">
+      Dismiss
+    </button>
+  </div>
+
   <div class="card">
 
     <!-- Register screen -->
@@ -393,6 +409,7 @@
       <h1>You're In!</h1>
       <p class="status-name" id="registeredName"></p>
       <p class="status-mobile" id="registeredMobile"></p>
+      <p id="queueTag" style="font-size:0.8rem;color:var(--muted);margin-bottom:16px;"></p>
 
       <div class="waiting-indicator">
         <span class="dot"></span>
@@ -432,7 +449,8 @@
     const socket = io();
     let audioCtx = null;
     let buzzTimeout = null;
-    const TOKEN_KEY = 'buzzer_token';
+    const TOKEN_KEY  = 'buzzer_token';
+    const NUMBER_KEY = 'buzzer_number';
 
     // Connection status
     const connDot   = document.getElementById('connDot');
@@ -511,9 +529,10 @@
       }
     });
 
-    socket.on('registered', ({ name, token, returning }) => {
-      // Save token for future reconnects
+    socket.on('registered', ({ name, token, number, returning }) => {
+      // Save token + number for future reconnects
       localStorage.setItem(TOKEN_KEY, token);
+      if (number) localStorage.setItem(NUMBER_KEY, number);
 
       // Show status screen
       document.getElementById('register-screen').style.display = 'none';
@@ -524,6 +543,8 @@
         ? `Welcome back, ${name} 👋`
         : `Hello, ${name} 👋`;
       document.getElementById('registeredMobile').textContent = mobile || '';
+      const num = number || localStorage.getItem(NUMBER_KEY);
+      document.getElementById('queueTag').textContent = num ? `Queue #${num}` : '';
 
       setupPush(token);
       checkNotifPermission();
@@ -715,9 +736,14 @@
 
       if (status === 'coming') {
         icon.textContent = '✅';
-        msg.textContent  = 'Got it! The organiser has been notified.';
+        msg.textContent  = 'On my way! Loading your number…';
         clearTimeout(buzzTimeout);
-        buzzTimeout = setTimeout(dismissBuzz, 3000);
+        buzzTimeout = setTimeout(() => {
+          dismissBuzz();
+          const num = localStorage.getItem(NUMBER_KEY);
+          document.getElementById('queueNumberBig').textContent = `#${num || '?'}`;
+          document.getElementById('queue-screen').style.display = 'flex';
+        }, 1000);
       } else {
         icon.textContent = '❌';
         msg.textContent  = 'You have been removed from the queue.';
@@ -744,6 +770,7 @@
 
     socket.on('left-queue', () => {
       localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(NUMBER_KEY);
       document.getElementById('status-screen').style.display = 'none';
       document.getElementById('register-screen').style.display = 'block';
       document.getElementById('nameInput').value = '';

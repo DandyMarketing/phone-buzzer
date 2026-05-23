@@ -59,8 +59,9 @@ async function initDB() {
   await pool.query(`ALTER TABLE participants ADD COLUMN IF NOT EXISTS status_updated_at TIMESTAMPTZ`);
 }
 
-// --- In-memory online tracking: socketId -> { token, name, mobile, status } ---
+// --- In-memory online tracking: socketId -> { token, name, mobile, status, number } ---
 const onlineSockets = new Map();
+let participantCounter = 0; // used when no DB
 
 // --- Push subscriptions: token -> PushSubscription ---
 const pushSubscriptions = new Map();
@@ -107,9 +108,10 @@ async function getParticipantsList() {
 
   if (pool) {
     const r = await pool.query(
-      'SELECT name, mobile, token, status, status_updated_at, joined_at FROM participants ORDER BY joined_at ASC'
+      'SELECT id, name, mobile, token, status, status_updated_at, joined_at FROM participants ORDER BY joined_at ASC'
     );
     return r.rows.map(row => ({
+      number:          row.id,
       name:            row.name,
       mobile:          row.mobile,
       token:           row.token,
@@ -123,6 +125,7 @@ async function getParticipantsList() {
 
   // In-memory fallback
   return [...onlineSockets.entries()].map(([sid, p]) => ({
+    number:  p.number,
     name:    p.name,
     mobile:  p.mobile,
     token:   p.token,
@@ -154,6 +157,7 @@ io.on('connection', (socket) => {
         }
         const participant = await dbCreate(trimName, trimMobile);
         onlineSockets.set(socket.id, {
+          number:  participant.id,
           token:   participant.token,
           name:    participant.name,
           mobile:  participant.mobile,
@@ -161,7 +165,7 @@ io.on('connection', (socket) => {
           joinedAt: participant.joined_at,
         });
         socket.join('participants');
-        socket.emit('registered', { name: participant.name, token: participant.token, returning: false });
+        socket.emit('registered', { name: participant.name, token: participant.token, number: participant.id, returning: false });
       } else {
         const dup = [...onlineSockets.values()].find(p => p.mobile === trimMobile);
         if (dup) {
@@ -169,10 +173,11 @@ io.on('connection', (socket) => {
           return;
         }
         const token = crypto.randomBytes(32).toString('hex');
-        const entry = { token, name: trimName, mobile: trimMobile, status: 'pending', joinedAt: new Date() };
+        participantCounter++;
+        const entry = { token, name: trimName, mobile: trimMobile, status: 'pending', joinedAt: new Date(), number: participantCounter };
         onlineSockets.set(socket.id, entry);
         socket.join('participants');
-        socket.emit('registered', { name: trimName, token, returning: false });
+        socket.emit('registered', { name: trimName, token, number: participantCounter, returning: false });
       }
 
       io.to('organizers').emit('participants-update', await getParticipantsList());
@@ -190,6 +195,7 @@ io.on('connection', (socket) => {
         if (!participant) { socket.emit('token-invalid'); return; }
         await dbTouchLastSeen(token);
         onlineSockets.set(socket.id, {
+          number:  participant.id,
           token:   participant.token,
           name:    participant.name,
           mobile:  participant.mobile,
@@ -197,7 +203,7 @@ io.on('connection', (socket) => {
           joinedAt: participant.joined_at,
         });
         socket.join('participants');
-        socket.emit('registered', { name: participant.name, token: participant.token, returning: true });
+        socket.emit('registered', { name: participant.name, token: participant.token, number: participant.id, returning: true });
         io.to('organizers').emit('participants-update', await getParticipantsList());
       } else {
         socket.emit('token-invalid');

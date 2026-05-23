@@ -672,8 +672,14 @@
 
     function renderSection(label, cls, list) {
       const emoji = cls === 'coming' ? '✅' : cls === 'declined' ? '❌' : '📋';
-      // Sort: online first
-      const sorted = [...list].sort((a, b) => (a.online === b.online) ? 0 : a.online ? -1 : 1);
+      let sorted;
+      if (cls === 'coming') {
+        // Sort by confirmation time (queue order)
+        sorted = [...list].sort((a, b) => new Date(a.statusUpdatedAt) - new Date(b.statusUpdatedAt));
+      } else {
+        // Sort: online first
+        sorted = [...list].sort((a, b) => (a.online === b.online) ? 0 : a.online ? -1 : 1);
+      }
 
       return `
         <div class="section-header">
@@ -684,22 +690,26 @@
         <div class="p-list">
           ${sorted.length === 0
             ? `<div class="empty-section">None yet</div>`
-            : sorted.map(p => renderParticipant(p, cls)).join('')
+            : sorted.map((p, i) => renderParticipant(p, cls, cls === 'coming' ? i + 1 : null)).join('')
           }
         </div>
       `;
     }
 
-    function renderParticipant(p, sectionCls) {
+    function renderParticipant(p, sectionCls, queuePos) {
       const initials  = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
       const safeToken = escAttr(p.token);
       const isAvailable = sectionCls === 'available';
+      const numTag = p.number ? `<span style="font-size:0.7rem;color:var(--muted);">#${p.number}</span>` : '';
+      const queueBadge = (sectionCls === 'coming' && queuePos != null)
+        ? `<span style="font-size:0.72rem;font-weight:700;background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3);border-radius:50px;padding:2px 8px;margin-right:4px;">${queuePos}</span>`
+        : '';
 
       const actionButtons = isAvailable
         ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" ${p.online ? '' : 'disabled'} title="${p.online ? 'Send buzz' : 'Offline'}">
              📳 Buzz
            </button>`
-        : `<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
+        : `${queueBadge}<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
            <button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>`;
 
       return `
@@ -709,7 +719,7 @@
             <span class="online-dot ${p.online ? 'on' : 'off'}"></span>
           </div>
           <div class="p-info">
-            <div class="p-name">${escHtml(p.name)}</div>
+            <div class="p-name">${escHtml(p.name)} ${numTag}</div>
             <div class="p-meta">${escHtml(p.mobile)} · ${p.online ? 'Online' : 'Offline'}</div>
           </div>
           <div class="p-actions">${actionButtons}</div>
