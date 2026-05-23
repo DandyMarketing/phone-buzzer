@@ -775,11 +775,21 @@
 
     // Listen for the service worker telling us a push arrived — this is what
     // makes the page actually buzz (sound + vibrate + overlay) when running as
-    // an iOS PWA, where the push event itself doesn't run page JS.
+    // an iOS PWA. Triggered both when the push arrives AND when the user taps
+    // the notification (fromTap = true — a real user gesture that lets us
+    // unlock Web Audio even after iOS suspended it).
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.addEventListener('message', event => {
+      navigator.serviceWorker.addEventListener('message', async event => {
         if (!event.data || event.data.type !== 'push-buzz') return;
         const body = event.data.body || 'BUZZ! The organiser is calling you!';
+
+        // Ensure an AudioContext exists and is running
+        try {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') await audioCtx.resume();
+          audioUnlocked = true;
+        } catch (_) {}
+
         playBuzzSound();
         vibrate();
         showBuzzOverlay(body);

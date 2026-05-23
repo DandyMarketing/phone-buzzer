@@ -24,10 +24,16 @@ self.addEventListener('push', event => {
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   const url = event.notification.data?.url || '/join';
+  const body = event.notification.body || '';
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
       const existing = list.find(c => c.url.includes('/join'));
-      if (existing) return existing.focus();
+      if (existing) {
+        // Tell the focused window to buzz loudly — tap counts as a user gesture
+        // so we can now play Web Audio + show the buzz overlay
+        existing.postMessage({ type: 'push-buzz', body, fromTap: true });
+        return existing.focus();
+      }
       return clients.openWindow(url);
     })
   );
