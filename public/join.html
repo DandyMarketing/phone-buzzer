@@ -766,8 +766,25 @@
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'visible' && localStorage.getItem(TOKEN_KEY)) {
         acquireWakeLock();
+        // Resume audio context — iOS suspends it when page is backgrounded
+        if (audioCtx && audioCtx.state === 'suspended') {
+          audioCtx.resume().catch(() => {});
+        }
       }
     });
+
+    // Listen for the service worker telling us a push arrived — this is what
+    // makes the page actually buzz (sound + vibrate + overlay) when running as
+    // an iOS PWA, where the push event itself doesn't run page JS.
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.addEventListener('message', event => {
+        if (!event.data || event.data.type !== 'push-buzz') return;
+        const body = event.data.body || 'BUZZ! The organiser is calling you!';
+        playBuzzSound();
+        vibrate();
+        showBuzzOverlay(body);
+      });
+    }
 
     function playBuzzSound() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();

@@ -396,6 +396,32 @@
       justify-content: flex-end;
     }
 
+    /* Mobile: stack info above actions; let action buttons span the row */
+    @media (max-width: 560px) {
+      .p-item {
+        flex-wrap: wrap;
+        row-gap: 10px;
+      }
+      .p-info { flex-basis: calc(100% - 70px); }
+      .p-actions {
+        flex-basis: 100%;
+        justify-content: flex-start;
+        gap: 6px;
+      }
+      .buzz-btn, .checkin-btn, .done-btn {
+        flex: 1 1 auto;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+      }
+      .delete-btn {
+        flex: 0 0 auto;
+        padding: 9px 11px;
+        font-size: 0.85rem;
+      }
+      .reset-btn { padding: 9px 10px; }
+      .status-badge { flex: 0 0 auto; }
+    }
+
     .status-badge {
       font-size: 0.72rem;
       font-weight: 700;
