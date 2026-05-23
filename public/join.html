@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
   <title>Join Buzzer Session</title>
+  <!-- PWA / iOS -->
+  <link rel="manifest" href="/manifest.json" />
+  <meta name="theme-color" content="#e94560" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Buzzer" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><rect width='180' height='180' fill='%23e94560' rx='38'/><text x='90' y='125' font-size='105' text-anchor='middle' font-family='system-ui'>📳</text></svg>" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -388,6 +395,15 @@
         </ul>
       </div>
 
+      <div id="ios-notice" class="notice" style="display:none;background:rgba(15,52,96,0.4);border-color:rgba(170,200,240,0.4);color:#aac8f0;">
+        <strong style="color:#aac8f0;">🍎 iPhone users — read this:</strong>
+        <ul>
+          <li><b>Flip the silent switch OFF</b> (above volume buttons) — otherwise no sound</li>
+          <li>Vibration is <b>not supported</b> on iPhones (Apple limitation)</li>
+          <li>For buzzes when the browser is closed: tap <b>Share → Add to Home Screen</b>, then open Buzzer from your home screen and register there</li>
+        </ul>
+      </div>
+
       <div class="field">
         <label>Your Name</label>
         <input type="text" id="nameInput" placeholder="e.g. Jane Smith" maxlength="40" autocomplete="name" />
@@ -431,6 +447,11 @@
         width: 100%;
       ">Leave Queue</button>
 
+      <div id="ios-pwa-banner" style="display:none;background:rgba(15,52,96,0.5);border:1px solid rgba(170,200,240,0.4);border-radius:10px;padding:12px 14px;margin-top:20px;font-size:0.82rem;color:#aac8f0;text-align:left;line-height:1.5;">
+        <strong style="display:block;margin-bottom:4px;">🍎 To receive buzzes when this page is closed:</strong>
+        Tap the <b>Share</b> button (square with arrow), then <b>Add to Home Screen</b>. Open Buzzer from your home screen and register there.
+      </div>
+
       <div id="sound-banner" onclick="unlockSoundManually()">
         <span>🔊</span>
         <span id="soundText">Tap here to enable sound & vibration</span>
@@ -451,6 +472,15 @@
     let buzzTimeout = null;
     const TOKEN_KEY  = 'buzzer_token';
     const NUMBER_KEY = 'buzzer_number';
+
+    // iOS detection
+    const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+                   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const IS_STANDALONE = window.navigator.standalone === true ||
+                         window.matchMedia('(display-mode: standalone)').matches;
+    if (IS_IOS) {
+      document.getElementById('ios-notice').style.display = 'block';
+    }
 
     // Connection status
     const connDot   = document.getElementById('connDot');
@@ -549,6 +579,11 @@
       setupPush(token);
       checkNotifPermission();
       unlockAudio();
+
+      // iOS-only: show PWA install prompt if not already standalone
+      if (IS_IOS && !IS_STANDALONE) {
+        document.getElementById('ios-pwa-banner').style.display = 'block';
+      }
     });
 
     // --- Push notifications ---
