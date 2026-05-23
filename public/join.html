@@ -268,12 +268,28 @@
     .buzz-dismiss-link:hover { color: rgba(255,255,255,0.8); }
 
     /* Notif banner */
+    #sound-banner {
+      background: rgba(245,166,35,0.1);
+      border: 1px solid rgba(245,166,35,0.4);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 20px;
+      font-size: 0.82rem;
+      color: #f5c842;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    #sound-banner.unlocked { border-color: var(--green); color: var(--green); cursor: default; }
+
     #notif-banner {
       background: rgba(15,52,96,0.5);
       border: 1px solid rgba(15,52,96,0.9);
       border-radius: 10px;
       padding: 12px 14px;
-      margin-top: 20px;
+      margin-top: 12px;
       font-size: 0.82rem;
       color: #aac8f0;
       display: flex;
@@ -383,6 +399,11 @@
         <span class="dot"></span>
         <span class="dot"></span>
         <span>Waiting for buzz…</span>
+      </div>
+
+      <div id="sound-banner" onclick="unlockSoundManually()">
+        <span>🔊</span>
+        <span id="soundText">Tap here to enable sound & vibration</span>
       </div>
 
       <div id="notif-banner" onclick="requestNotifPermission()">
@@ -557,18 +578,50 @@
     }
 
     // Audio
+    let audioUnlocked = false;
+
     function unlockAudio() {
-      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const buf = audioCtx.createBuffer(1, 1, 22050);
-      const src = audioCtx.createBufferSource();
-      src.buffer = buf;
-      src.connect(audioCtx.destination);
-      src.start(0);
+      if (audioUnlocked) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const buf = audioCtx.createBuffer(1, 1, 22050);
+        const src = audioCtx.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioCtx.destination);
+        src.start(0);
+        if (audioCtx.state !== 'suspended') {
+          audioUnlocked = true;
+          const banner = document.getElementById('sound-banner');
+          if (banner) {
+            banner.className = 'unlocked';
+            document.getElementById('soundText').textContent = '✓ Sound enabled';
+          }
+        }
+      } catch (e) {}
     }
+
+    function unlockSoundManually() {
+      unlockAudio();
+      // Force resume in case context was created but suspended
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume().then(() => {
+          audioUnlocked = true;
+          const banner = document.getElementById('sound-banner');
+          if (banner) {
+            banner.className = 'unlocked';
+            document.getElementById('soundText').textContent = '✓ Sound enabled';
+          }
+        });
+      }
+    }
+
+    // Unlock on any user interaction (covers new registrations and page taps)
+    document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
+    document.addEventListener('click', unlockAudio, { once: true });
 
     function playBuzzSound() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const play = () => {
 
       // Compressor maximises perceived loudness without clipping
       const compressor = audioCtx.createDynamicsCompressor();
@@ -601,7 +654,13 @@
       oneBuzz(t + 1.1,  150, 0.45);
       oneBuzz(t + 1.65, 150, 0.45);
       oneBuzz(t + 2.2,  150, 0.7);
-    }
+      }; // end play()
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().then(play);
+      } else {
+        play();
+      }
+    } // end playBuzzSound()
 
     function vibrate() {
       if ('vibrate' in navigator) navigator.vibrate([300, 100, 300, 100, 500]);
