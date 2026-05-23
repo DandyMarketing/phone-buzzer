@@ -716,13 +716,18 @@
       if (status === 'coming') {
         icon.textContent = '✅';
         msg.textContent  = 'Got it! The organiser has been notified.';
+        clearTimeout(buzzTimeout);
+        buzzTimeout = setTimeout(dismissBuzz, 3000);
       } else {
         icon.textContent = '❌';
-        msg.textContent  = 'Noted. The organiser has been informed.';
+        msg.textContent  = 'You have been removed from the queue.';
+        clearTimeout(buzzTimeout);
+        buzzTimeout = setTimeout(() => {
+          dismissBuzz();
+          const token = localStorage.getItem(TOKEN_KEY);
+          if (token) socket.emit('leave-queue', { token });
+        }, 2000);
       }
-
-      clearTimeout(buzzTimeout);
-      buzzTimeout = setTimeout(dismissBuzz, 3000);
     }
 
     function dismissBuzz() {
