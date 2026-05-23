@@ -471,24 +471,37 @@
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
 
+      // Compressor maximises perceived loudness without clipping
+      const compressor = audioCtx.createDynamicsCompressor();
+      compressor.threshold.value = -6;
+      compressor.knee.value      = 0;
+      compressor.ratio.value     = 20;
+      compressor.attack.value    = 0;
+      compressor.release.value   = 0.1;
+      compressor.connect(audioCtx.destination);
+
       function oneBuzz(startTime, freq, duration) {
-        const osc  = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = 'sawtooth';
-        osc.frequency.setValueAtTime(freq, startTime);
-        osc.frequency.exponentialRampToValueAtTime(freq * 1.5, startTime + duration * 0.5);
-        gain.gain.setValueAtTime(0.9, startTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-        osc.start(startTime);
-        osc.stop(startTime + duration + 0.01);
+        // Layer two oscillators (fundamental + fifth) for a harsh, full buzz
+        [freq, freq * 1.5].forEach(f => {
+          const osc  = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(compressor);
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(f, startTime);
+          gain.gain.setValueAtTime(1.0, startTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+          osc.start(startTime);
+          osc.stop(startTime + duration + 0.02);
+        });
       }
 
       const t = audioCtx.currentTime;
-      oneBuzz(t,        160, 0.28);
-      oneBuzz(t + 0.35, 160, 0.28);
-      oneBuzz(t + 0.70, 160, 0.45);
+      oneBuzz(t + 0.0,  150, 0.45);
+      oneBuzz(t + 0.55, 150, 0.45);
+      oneBuzz(t + 1.1,  150, 0.45);
+      oneBuzz(t + 1.65, 150, 0.45);
+      oneBuzz(t + 2.2,  150, 0.7);
     }
 
     function vibrate() {
