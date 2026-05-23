@@ -186,11 +186,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      padding: 28px;
+      text-align: center;
     }
 
     #buzz-overlay.visible { display: flex; }
 
-    .buzz-icon { font-size: 100px; animation: shake 0.1s linear infinite; }
+    .buzz-icon { font-size: 90px; animation: shake 0.1s linear infinite; }
+
+    #buzz-overlay.responded .buzz-icon { animation: none; font-size: 80px; }
 
     @keyframes shake {
       0%   { transform: translate(-4px, 0) rotate(-3deg); }
@@ -200,21 +204,68 @@
       100% { transform: translate(-4px, 0) rotate(-3deg); }
     }
 
-    .buzz-text { font-size: 2.2rem; font-weight: 900; color: #fff; margin-top: 16px; letter-spacing: 2px; }
-    .buzz-sub  { font-size: 1.05rem; color: rgba(255,255,255,0.85); margin-top: 8px; }
+    .buzz-text { font-size: 2rem; font-weight: 900; color: #fff; margin-top: 14px; letter-spacing: 2px; }
+    .buzz-sub  { font-size: 1rem; color: rgba(255,255,255,0.85); margin-top: 8px; }
 
-    .buzz-dismiss {
-      margin-top: 40px;
-      background: rgba(255,255,255,0.2);
-      border: 2px solid rgba(255,255,255,0.5);
-      border-radius: 50px;
-      padding: 14px 36px;
-      font-size: 1rem;
-      width: auto;
-      font-weight: 600;
+    .buzz-response-prompt {
+      margin-top: 10px;
+      font-size: 0.95rem;
+      color: rgba(255,255,255,0.7);
     }
 
-    .buzz-dismiss:hover { background: rgba(255,255,255,0.3); }
+    .buzz-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 28px;
+      width: 100%;
+      max-width: 320px;
+    }
+
+    .btn-coming {
+      background: #fff;
+      color: var(--accent);
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.1s, opacity 0.2s;
+    }
+
+    .btn-coming:hover { opacity: 0.92; }
+    .btn-coming:active { transform: scale(0.97); }
+
+    .btn-declined {
+      background: rgba(0,0,0,0.25);
+      color: #fff;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-radius: 14px;
+      padding: 15px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.15s;
+    }
+
+    .btn-declined:hover { background: rgba(0,0,0,0.35); }
+
+    .buzz-dismiss-link {
+      margin-top: 8px;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 0.85rem;
+      cursor: pointer;
+      width: auto;
+      text-decoration: underline;
+      padding: 4px;
+    }
+
+    .buzz-dismiss-link:hover { color: rgba(255,255,255,0.8); }
 
     /* Notif banner */
     #notif-banner {
@@ -270,10 +321,16 @@
   </div>
 
   <div id="buzz-overlay">
-    <div class="buzz-icon">📳</div>
+    <div class="buzz-icon" id="buzzIcon">📳</div>
     <div class="buzz-text">BUZZ!</div>
     <div class="buzz-sub" id="buzzMsg">The organiser is calling you!</div>
-    <button class="buzz-dismiss" onclick="dismissBuzz()">Dismiss</button>
+
+    <div class="buzz-actions" id="buzzActions">
+      <p class="buzz-response-prompt">Let them know:</p>
+      <button class="btn-coming"   onclick="respondBuzz('coming')">🙋 I am coming</button>
+      <button class="btn-declined" onclick="respondBuzz('declined')">🚫 I decided not to go</button>
+      <button class="buzz-dismiss-link" onclick="dismissBuzz()">Dismiss without responding</button>
+    </div>
   </div>
 
   <div class="card">
@@ -518,15 +575,44 @@
     }
 
     function showBuzzOverlay(message) {
+      const overlay = document.getElementById('buzz-overlay');
       document.getElementById('buzzMsg').textContent = message;
-      document.getElementById('buzz-overlay').classList.add('visible');
+      document.getElementById('buzzIcon').textContent = '📳';
+      document.getElementById('buzzActions').style.display = 'flex';
+      overlay.classList.remove('responded');
+      overlay.classList.add('visible');
       document.body.classList.add('buzzing');
       clearTimeout(buzzTimeout);
-      buzzTimeout = setTimeout(dismissBuzz, 8000);
+      buzzTimeout = setTimeout(dismissBuzz, 30000);
+    }
+
+    function respondBuzz(status) {
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) socket.emit('buzz-response', { token, status });
+
+      const overlay  = document.getElementById('buzz-overlay');
+      const icon     = document.getElementById('buzzIcon');
+      const msg      = document.getElementById('buzzMsg');
+      const actions  = document.getElementById('buzzActions');
+
+      overlay.classList.add('responded');
+      actions.style.display = 'none';
+      document.body.classList.remove('buzzing');
+
+      if (status === 'coming') {
+        icon.textContent = '✅';
+        msg.textContent  = 'Got it! The organiser has been notified.';
+      } else {
+        icon.textContent = '❌';
+        msg.textContent  = 'Noted. The organiser has been informed.';
+      }
+
+      clearTimeout(buzzTimeout);
+      buzzTimeout = setTimeout(dismissBuzz, 3000);
     }
 
     function dismissBuzz() {
-      document.getElementById('buzz-overlay').classList.remove('visible');
+      document.getElementById('buzz-overlay').classList.remove('visible', 'responded');
       document.body.classList.remove('buzzing');
       clearTimeout(buzzTimeout);
     }

@@ -14,6 +14,7 @@
       --text: #eaeaea;
       --muted: #888;
       --green: #00d4aa;
+      --amber: #f5a623;
       --border: rgba(255,255,255,0.08);
     }
 
@@ -65,7 +66,6 @@
 
     input[type="password"]:focus { border-color: var(--accent); }
     input::placeholder { letter-spacing: 0; color: var(--muted); font-size: 1rem; }
-
     .error-msg { color: var(--accent); font-size: 0.88rem; margin-bottom: 10px; min-height: 20px; }
 
     button {
@@ -83,7 +83,7 @@
 
     button:hover { opacity: 0.9; }
     button:active { transform: scale(0.98); }
-    button:disabled { opacity: 0.4; cursor: default; }
+    button:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
 
     /* Dashboard */
     #dashboard { display: none; }
@@ -92,7 +92,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       flex-wrap: wrap;
       gap: 12px;
     }
@@ -111,74 +111,73 @@
       color: var(--green);
     }
 
-    .conn-dot-live {
+    .live-dot {
       width: 8px; height: 8px;
       border-radius: 50%;
       background: var(--green);
       animation: blink 2s ease-in-out infinite;
     }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.3; }
-    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .grid {
+    /* Top grid: QR + Buzz All */
+    .top-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
+      margin-bottom: 16px;
     }
 
-    @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+    @media (max-width: 640px) { .top-grid { grid-template-columns: 1fr; } }
 
     .panel {
       background: var(--card);
       border-radius: 16px;
-      padding: 22px;
+      padding: 20px;
     }
 
-    .panel h3 {
-      font-size: 0.85rem;
+    .panel-title {
+      font-size: 0.78rem;
       font-weight: 600;
       color: var(--muted);
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }
 
     /* QR */
     .qr-wrap { text-align: center; }
 
     #qrImg {
-      width: 200px; height: 200px;
-      border-radius: 12px;
+      width: 180px; height: 180px;
+      border-radius: 10px;
       background: #fff;
-      padding: 8px;
-      margin: 0 auto 12px;
+      padding: 6px;
+      margin: 0 auto 10px;
       display: block;
     }
 
     .join-url {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--muted);
       word-break: break-all;
       background: rgba(255,255,255,0.04);
       border-radius: 8px;
-      padding: 8px 10px;
-      margin-bottom: 8px;
+      padding: 7px 10px;
       cursor: pointer;
       transition: background 0.2s;
+      margin-bottom: 4px;
     }
 
     .join-url:hover { background: rgba(255,255,255,0.08); }
-    .copy-hint { font-size: 0.75rem; color: var(--muted); }
+    .copy-hint { font-size: 0.72rem; color: var(--muted); }
 
     /* Buzz all */
     .buzz-all-btn {
       background: var(--accent);
       border-radius: 12px;
-      padding: 16px;
-      font-size: 1.1rem;
+      padding: 18px;
+      font-size: 1.15rem;
       font-weight: 800;
       letter-spacing: 1px;
       display: flex;
@@ -187,78 +186,148 @@
       gap: 8px;
       box-shadow: 0 4px 20px rgba(233,69,96,0.3);
       transition: transform 0.15s, box-shadow 0.15s;
+      margin-bottom: 12px;
     }
 
     .buzz-all-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(233,69,96,0.5); }
     .buzz-all-btn:active { transform: scale(0.97); }
-
-    .buzz-all-btn.fired {
-      animation: buzzFlash 0.2s ease 3 alternate;
-    }
+    .buzz-all-btn.fired { animation: buzzFlash 0.2s ease 3 alternate; }
 
     @keyframes buzzFlash {
       from { background: var(--accent); }
       to   { background: #ff7096; }
     }
 
-    /* Participants */
-    .participants-panel { grid-column: 1 / -1; }
-
-    .panel-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
+    .buzz-all-note {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
     }
 
-    .panel-header h3 { margin-bottom: 0; }
+    /* Response Feed */
+    #feed-panel { margin-bottom: 16px; }
 
-    .counts {
-      display: flex;
-      gap: 8px;
-      font-size: 0.8rem;
-    }
-
-    .badge {
-      border-radius: 50px;
-      padding: 2px 10px;
-      font-weight: 700;
-    }
-
-    .badge-online  { background: rgba(0,212,170,0.15); color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
-    .badge-total   { background: rgba(255,255,255,0.07); color: var(--muted); border: 1px solid var(--border); }
-
-    #participantsList {
-      list-style: none;
+    .feed-list {
       display: flex;
       flex-direction: column;
       gap: 8px;
-      max-height: 500px;
+      max-height: 220px;
       overflow-y: auto;
+    }
+
+    .feed-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.03);
+      border-radius: 10px;
+      padding: 10px 14px;
+      border-left: 3px solid transparent;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    .feed-item.coming  { border-left-color: var(--green); }
+    .feed-item.declined{ border-left-color: var(--accent); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .feed-emoji { font-size: 1.4rem; flex-shrink: 0; }
+
+    .feed-info { flex: 1; min-width: 0; }
+
+    .feed-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .feed-status {
+      font-size: 0.78rem;
+      margin-top: 1px;
+    }
+
+    .feed-status.coming  { color: var(--green); }
+    .feed-status.declined{ color: var(--accent); }
+
+    .feed-time { font-size: 0.72rem; color: var(--muted); flex-shrink: 0; }
+
+    .feed-empty {
+      text-align: center;
+      padding: 20px;
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    /* Participant sections */
+    #participants-panel { }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+      margin-top: 18px;
+    }
+
+    .section-header:first-child { margin-top: 0; }
+
+    .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .section-label.available { color: var(--text); }
+    .section-label.coming    { color: var(--green); }
+    .section-label.declined  { color: var(--accent); }
+
+    .section-count {
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 50px;
+      padding: 1px 8px;
+    }
+
+    .section-count.available { background: rgba(255,255,255,0.08); color: var(--muted); }
+    .section-count.coming    { background: rgba(0,212,170,0.15);   color: var(--green); }
+    .section-count.declined  { background: rgba(233,69,96,0.15);   color: var(--accent); }
+
+    .section-divider {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .p-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      margin-bottom: 4px;
     }
 
     .p-item {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       background: rgba(255,255,255,0.04);
       border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 14px;
-      transition: background 0.2s, border-color 0.2s;
+      border-radius: 11px;
+      padding: 10px 13px;
+      transition: opacity 0.2s;
       animation: slideIn 0.25s ease-out;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateY(-6px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+    .p-item.offline { opacity: 0.45; }
+    .p-item.coming  { border-color: rgba(0,212,170,0.2);  background: rgba(0,212,170,0.05); }
+    .p-item.declined{ border-color: rgba(233,69,96,0.2);  background: rgba(233,69,96,0.05); }
 
-    .p-item.offline { opacity: 0.5; }
-
-    .p-item.buzzed-flash {
-      animation: itemFlash 0.15s ease 4 alternate;
-    }
+    .p-item.buzzed-flash { animation: itemFlash 0.15s ease 4 alternate; }
 
     @keyframes itemFlash {
       from { background: rgba(255,255,255,0.04); border-color: var(--border); }
@@ -266,14 +335,14 @@
     }
 
     .avatar {
-      width: 38px; height: 38px;
+      width: 36px; height: 36px;
       border-radius: 50%;
       background: #0f3460;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 700;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       color: #a8c8ff;
       flex-shrink: 0;
       position: relative;
@@ -282,55 +351,95 @@
     .online-dot {
       position: absolute;
       bottom: 0; right: 0;
-      width: 10px; height: 10px;
+      width: 9px; height: 9px;
       border-radius: 50%;
       border: 2px solid var(--card);
     }
 
     .online-dot.on  { background: var(--green); }
-    .online-dot.off { background: #555; }
+    .online-dot.off { background: #444; }
 
     .p-info { flex: 1; min-width: 0; }
 
     .p-name {
-      font-size: 0.95rem;
+      font-size: 0.9rem;
       font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .p-meta {
-      font-size: 0.75rem;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+    .p-meta { font-size: 0.72rem; color: var(--muted); margin-top: 1px; }
 
-    .status-label {
-      font-size: 0.72rem;
-      border-radius: 50px;
-      padding: 2px 8px;
-      font-weight: 600;
+    .p-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       flex-shrink: 0;
     }
 
-    .status-label.on  { background: rgba(0,212,170,0.15); color: var(--green); border: 1px solid rgba(0,212,170,0.3); }
-    .status-label.off { background: rgba(255,255,255,0.05); color: #555; border: 1px solid var(--border); }
+    .status-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      border-radius: 50px;
+      padding: 3px 9px;
+    }
+
+    .status-badge.coming  { background: rgba(0,212,170,0.15); color: var(--green);  border: 1px solid rgba(0,212,170,0.3); }
+    .status-badge.declined{ background: rgba(233,69,96,0.15); color: var(--accent); border: 1px solid rgba(233,69,96,0.3); }
 
     .buzz-btn {
       background: rgba(233,69,96,0.15);
       border: 1px solid rgba(233,69,96,0.4);
       color: var(--accent);
       border-radius: 8px;
-      padding: 7px 12px;
-      font-size: 0.82rem;
+      padding: 6px 11px;
+      font-size: 0.8rem;
       font-weight: 700;
       width: auto;
-      flex-shrink: 0;
     }
 
     .buzz-btn:hover { background: rgba(233,69,96,0.3); }
-    .buzz-btn:disabled { opacity: 0.25; cursor: default; pointer-events: none; }
+
+    .reset-btn {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: var(--muted);
+      border-radius: 8px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      width: auto;
+    }
+
+    .reset-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+
+    .counts-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .count-chip {
+      font-size: 0.78rem;
+      font-weight: 600;
+      border-radius: 50px;
+      padding: 3px 12px;
+      border: 1px solid;
+    }
+
+    .count-chip.total    { border-color: var(--border);              color: var(--muted);  background: rgba(255,255,255,0.04); }
+    .count-chip.online   { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.1); }
+    .count-chip.coming   { border-color: rgba(0,212,170,0.3);        color: var(--green);  background: rgba(0,212,170,0.08); }
+    .count-chip.declined { border-color: rgba(233,69,96,0.3);        color: var(--accent); background: rgba(233,69,96,0.08); }
+
+    .empty-section {
+      font-size: 0.82rem;
+      color: var(--muted);
+      padding: 8px 4px;
+      font-style: italic;
+    }
 
     .empty-state {
       text-align: center;
@@ -355,56 +464,48 @@
   </div>
 
   <div id="dashboard">
+
     <div class="top-bar">
       <h2>📳 Buzzer Dashboard</h2>
       <div class="conn-chip">
-        <span class="conn-dot-live"></span>
+        <span class="live-dot"></span>
         <span id="connLabel">Live</span>
       </div>
     </div>
 
-    <div class="grid">
-
+    <!-- QR + Buzz All -->
+    <div class="top-grid">
       <div class="panel qr-wrap">
-        <h3>Scan to Join</h3>
+        <div class="panel-title">Scan to Join</div>
         <img id="qrImg" src="" alt="Loading…" />
         <div class="join-url" id="joinUrl" onclick="copyUrl()">Loading…</div>
-        <div class="copy-hint">Tap URL to copy</div>
+        <div class="copy-hint">Tap to copy link</div>
       </div>
 
-      <div class="panel" style="display:flex;flex-direction:column;gap:14px;">
-        <h3>Quick Actions</h3>
-        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:12px;">
-          <button class="buzz-all-btn" id="buzzAllBtn" onclick="buzzAll()">
-            📳 BUZZ EVERYONE
-          </button>
-          <div style="text-align:center;color:var(--muted);font-size:0.8rem;">
-            Buzzes all currently online participants
-          </div>
-        </div>
-        <div style="background:rgba(255,255,255,0.04);border-radius:10px;padding:12px;font-size:0.82rem;color:var(--muted);line-height:1.6;">
-          <strong style="color:var(--text);">How it works</strong><br>
-          Participants scan the QR code, enter their name and mobile number, and wait. Offline participants reconnect automatically when they reopen the page.
-        </div>
+      <div class="panel" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="panel-title">Quick Actions</div>
+        <button class="buzz-all-btn" id="buzzAllBtn" onclick="buzzAll()">
+          📳 BUZZ EVERYONE
+        </button>
+        <div class="buzz-all-note">Only buzzes participants who haven't responded yet</div>
       </div>
-
-      <div class="panel participants-panel">
-        <div class="panel-header">
-          <h3>Participants</h3>
-          <div class="counts">
-            <span class="badge badge-online" id="onlineCount">0 online</span>
-            <span class="badge badge-total"  id="totalCount">0 total</span>
-          </div>
-        </div>
-        <ul id="participantsList">
-          <li class="empty-state">
-            <div class="icon">📱</div>
-            <p>No participants yet.<br>Share the QR code to get started.</p>
-          </li>
-        </ul>
-      </div>
-
     </div>
+
+    <!-- Response feed -->
+    <div class="panel" id="feed-panel" style="margin-bottom:16px;">
+      <div class="panel-title">Live Responses</div>
+      <div class="feed-list" id="feedList">
+        <div class="feed-empty">Responses will appear here when participants reply to a buzz.</div>
+      </div>
+    </div>
+
+    <!-- Participants -->
+    <div class="panel" id="participants-panel">
+      <div class="panel-title">Participants</div>
+      <div class="counts-row" id="countsRow"></div>
+      <div id="participantSections"></div>
+    </div>
+
   </div>
 
   <script src="/socket.io/socket.io.js"></script>
@@ -413,6 +514,7 @@
     let participants = [];
     let joinUrl = '';
     let authorized = false;
+    const responseFeed = []; // { name, status, token, time }
 
     document.getElementById('pinInput').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
@@ -455,6 +557,12 @@
       renderParticipants();
     });
 
+    socket.on('buzz-response-received', ({ name, status, token, time }) => {
+      responseFeed.unshift({ name, status, token, time: new Date(time) });
+      if (responseFeed.length > 20) responseFeed.pop();
+      renderFeed();
+    });
+
     socket.on('buzz-sent', ({ targetToken }) => {
       if (targetToken === 'all') {
         document.querySelectorAll('.p-item').forEach(el => flashItem(el));
@@ -471,7 +579,7 @@
 
     async function loadQR() {
       try {
-        const res = await fetch('/qr');
+        const res  = await fetch('/qr');
         const data = await res.json();
         document.getElementById('qrImg').src = data.qr;
         joinUrl = data.url;
@@ -502,54 +610,110 @@
       socket.emit('buzz', { targetToken: token });
     }
 
+    function resetStatus(token) {
+      socket.emit('reset-status', { token });
+    }
+
+    // --- Feed ---
+    function renderFeed() {
+      const list = document.getElementById('feedList');
+      if (responseFeed.length === 0) {
+        list.innerHTML = '<div class="feed-empty">Responses will appear here when participants reply to a buzz.</div>';
+        return;
+      }
+      list.innerHTML = responseFeed.map(r => {
+        const emoji  = r.status === 'coming' ? '✅' : '❌';
+        const label  = r.status === 'coming' ? 'I am coming' : 'I decided not to go';
+        return `
+          <div class="feed-item ${r.status}">
+            <span class="feed-emoji">${emoji}</span>
+            <div class="feed-info">
+              <div class="feed-name">${escHtml(r.name)}</div>
+              <div class="feed-status ${r.status}">${label}</div>
+            </div>
+            <span class="feed-time">${formatTime(r.time)}</span>
+          </div>`;
+      }).join('');
+    }
+
+    // --- Participants ---
     function renderParticipants() {
-      const list        = document.getElementById('participantsList');
+      const available = participants.filter(p => p.status === 'pending');
+      const coming    = participants.filter(p => p.status === 'coming');
+      const declined  = participants.filter(p => p.status === 'declined');
+
       const onlineCount = participants.filter(p => p.online).length;
-      const totalCount  = participants.length;
 
-      document.getElementById('onlineCount').textContent = `${onlineCount} online`;
-      document.getElementById('totalCount').textContent  = `${totalCount} total`;
+      // Counts row
+      document.getElementById('countsRow').innerHTML = `
+        <span class="count-chip total">${participants.length} total</span>
+        <span class="count-chip online">${onlineCount} online</span>
+        <span class="count-chip coming">✅ ${coming.length} coming</span>
+        <span class="count-chip declined">❌ ${declined.length} declined</span>
+      `;
 
-      if (totalCount === 0) {
-        list.innerHTML = `
-          <li class="empty-state">
+      const sections = document.getElementById('participantSections');
+
+      if (participants.length === 0) {
+        sections.innerHTML = `
+          <div class="empty-state">
             <div class="icon">📱</div>
             <p>No participants yet.<br>Share the QR code to get started.</p>
-          </li>`;
+          </div>`;
         return;
       }
 
-      // Online first, then offline; within each group sort by join time
-      const sorted = [...participants].sort((a, b) => {
-        if (a.online !== b.online) return a.online ? -1 : 1;
-        return new Date(a.joinedAt) - new Date(b.joinedAt);
-      });
+      sections.innerHTML = `
+        ${renderSection('Available', 'available', available)}
+        ${renderSection('Coming', 'coming', coming)}
+        ${renderSection('Declined', 'declined', declined)}
+      `;
+    }
 
-      list.innerHTML = sorted.map(p => {
-        const initials = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
-        const joined   = formatTime(p.joinedAt);
-        const safeToken = escAttr(p.token);
-        return `
-          <li class="p-item ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
-            <div class="avatar">
-              ${escHtml(initials)}
-              <span class="online-dot ${p.online ? 'on' : 'off'}"></span>
-            </div>
-            <div class="p-info">
-              <div class="p-name">${escHtml(p.name)}</div>
-              <div class="p-meta">${escHtml(p.mobile)} · joined ${joined}</div>
-            </div>
-            <span class="status-label ${p.online ? 'on' : 'off'}">${p.online ? 'Online' : 'Offline'}</span>
-            <button
-              class="buzz-btn"
-              onclick="buzzOne('${safeToken}')"
-              ${p.online ? '' : 'disabled'}
-              title="${p.online ? 'Send buzz' : 'Participant is offline'}"
-            >
-              📳 Buzz
-            </button>
-          </li>`;
-      }).join('');
+    function renderSection(label, cls, list) {
+      const emoji = cls === 'coming' ? '✅' : cls === 'declined' ? '❌' : '📋';
+      // Sort: online first
+      const sorted = [...list].sort((a, b) => (a.online === b.online) ? 0 : a.online ? -1 : 1);
+
+      return `
+        <div class="section-header">
+          <span class="section-label ${cls}">${emoji} ${label}</span>
+          <span class="section-count ${cls}">${list.length}</span>
+          <span class="section-divider"></span>
+        </div>
+        <div class="p-list">
+          ${sorted.length === 0
+            ? `<div class="empty-section">None yet</div>`
+            : sorted.map(p => renderParticipant(p, cls)).join('')
+          }
+        </div>
+      `;
+    }
+
+    function renderParticipant(p, sectionCls) {
+      const initials  = p.name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+      const safeToken = escAttr(p.token);
+      const isAvailable = sectionCls === 'available';
+
+      const actionButtons = isAvailable
+        ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" ${p.online ? '' : 'disabled'} title="${p.online ? 'Send buzz' : 'Offline'}">
+             📳 Buzz
+           </button>`
+        : `<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
+           <button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>`;
+
+      return `
+        <div class="p-item ${sectionCls === 'available' ? '' : sectionCls} ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">
+          <div class="avatar">
+            ${escHtml(initials)}
+            <span class="online-dot ${p.online ? 'on' : 'off'}"></span>
+          </div>
+          <div class="p-info">
+            <div class="p-name">${escHtml(p.name)}</div>
+            <div class="p-meta">${escHtml(p.mobile)} · ${p.online ? 'Online' : 'Offline'}</div>
+          </div>
+          <div class="p-actions">${actionButtons}</div>
+        </div>`;
     }
 
     function formatTime(ts) {

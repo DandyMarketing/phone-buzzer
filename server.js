@@ -34,18 +34,23 @@ async function initDB() {
   if (!pool) return;
   await pool.query(`
     CREATE TABLE IF NOT EXISTS participants (
-      id       SERIAL PRIMARY KEY,
-      name     VARCHAR(40)  NOT NULL,
-      mobile   VARCHAR(30)  NOT NULL,
-      token    VARCHAR(64)  UNIQUE NOT NULL,
-      joined_at TIMESTAMPTZ DEFAULT NOW(),
-      last_seen TIMESTAMPTZ DEFAULT NOW(),
+      id                SERIAL PRIMARY KEY,
+      name              VARCHAR(40)  NOT NULL,
+      mobile            VARCHAR(30)  NOT NULL,
+      token             VARCHAR(64)  UNIQUE NOT NULL,
+      status            VARCHAR(20)  DEFAULT 'pending',
+      status_updated_at TIMESTAMPTZ,
+      joined_at         TIMESTAMPTZ  DEFAULT NOW(),
+      last_seen         TIMESTAMPTZ  DEFAULT NOW(),
       UNIQUE(mobile)
     )
   `);
+  // Safe migrations for existing tables
+  await pool.query(`ALTER TABLE participants ADD COLUMN IF NOT EXISTS status VARCHAR(20) DEFAULT 'pending'`);
+  await pool.query(`ALTER TABLE participants ADD COLUMN IF NOT EXISTS status_updated_at TIMESTAMPTZ`);
 }
 
-// --- In-memory online tracking: socketId -> { token, name, mobile } ---
+// --- In-memory online tracking: socketId -> { token, name, mobile, status } ---
 const onlineSockets = new Map();
 
 // --- DB helpers ---
@@ -75,6 +80,14 @@ async function dbTouchLastSeen(token) {
   await pool.query('UPDATE participants SET last_seen = NOW() WHERE token = $1', [token]);
 }
 
+async function dbSetStatus(token, status) {
+  if (!pool) return;
+  await pool.query(
+    'UPDATE participants SET status = $1, status_updated_at = NOW() WHERE token = $2',
+    [status, token]
+  );
+}
+
 async function getParticipantsList() {
   const onlineTokens = new Map(
     [...onlineSockets.entries()].map(([sid, p]) => [p.token, sid])
@@ -82,26 +95,29 @@ async function getParticipantsList() {
 
   if (pool) {
     const r = await pool.query(
-      'SELECT name, mobile, token, joined_at FROM participants ORDER BY joined_at ASC'
+      'SELECT name, mobile, token, status, status_updated_at, joined_at FROM participants ORDER BY joined_at ASC'
     );
     return r.rows.map(row => ({
-      name: row.name,
-      mobile: row.mobile,
-      token: row.token,
-      joinedAt: row.joined_at,
-      online: onlineTokens.has(row.token),
-      socketId: onlineTokens.get(row.token) || null,
+      name:            row.name,
+      mobile:          row.mobile,
+      token:           row.token,
+      status:          row.status || 'pending',
+      statusUpdatedAt: row.status_updated_at,
+      joinedAt:        row.joined_at,
+      online:          onlineTokens.has(row.token),
+      socketId:        onlineTokens.get(row.token) || null,
     }));
   }
 
   // In-memory fallback
-  return [...onlineSockets.values()].map(p => ({
-    name: p.name,
-    mobile: p.mobile,
-    token: p.token,
+  return [...onlineSockets.entries()].map(([sid, p]) => ({
+    name:    p.name,
+    mobile:  p.mobile,
+    token:   p.token,
+    status:  p.status || 'pending',
     joinedAt: p.joinedAt,
-    online: true,
-    socketId: [...onlineSockets.entries()].find(([, v]) => v.token === p.token)?.[0],
+    online:  true,
+    socketId: sid,
   }));
 }
 
@@ -120,31 +136,28 @@ io.on('connection', (socket) => {
         if (existing) {
           socket.emit('register-error', {
             field: 'mobile',
-            message: 'This mobile number is already registered. Rejoin using your token link, or contact the organiser.',
+            message: 'This mobile number is already registered.',
           });
           return;
         }
         const participant = await dbCreate(trimName, trimMobile);
         onlineSockets.set(socket.id, {
-          token: participant.token,
-          name: participant.name,
-          mobile: participant.mobile,
+          token:   participant.token,
+          name:    participant.name,
+          mobile:  participant.mobile,
+          status:  participant.status || 'pending',
           joinedAt: participant.joined_at,
         });
         socket.join('participants');
         socket.emit('registered', { name: participant.name, token: participant.token, returning: false });
       } else {
-        // In-memory fallback: check for duplicate mobile
         const dup = [...onlineSockets.values()].find(p => p.mobile === trimMobile);
         if (dup) {
-          socket.emit('register-error', {
-            field: 'mobile',
-            message: 'This mobile number is already registered.',
-          });
+          socket.emit('register-error', { field: 'mobile', message: 'This mobile number is already registered.' });
           return;
         }
         const token = crypto.randomBytes(32).toString('hex');
-        const entry = { token, name: trimName, mobile: trimMobile, joinedAt: new Date() };
+        const entry = { token, name: trimName, mobile: trimMobile, status: 'pending', joinedAt: new Date() };
         onlineSockets.set(socket.id, entry);
         socket.join('participants');
         socket.emit('registered', { name: trimName, token, returning: false });
@@ -160,31 +173,68 @@ io.on('connection', (socket) => {
   // Returning user reconnect via token
   socket.on('reconnect-token', async ({ token }) => {
     try {
-      let participant = null;
-
       if (pool) {
-        participant = await dbFindByToken(token);
+        const participant = await dbFindByToken(token);
         if (!participant) { socket.emit('token-invalid'); return; }
         await dbTouchLastSeen(token);
+        onlineSockets.set(socket.id, {
+          token:   participant.token,
+          name:    participant.name,
+          mobile:  participant.mobile,
+          status:  participant.status || 'pending',
+          joinedAt: participant.joined_at,
+        });
+        socket.join('participants');
+        socket.emit('registered', { name: participant.name, token: participant.token, returning: true });
+        io.to('organizers').emit('participants-update', await getParticipantsList());
       } else {
-        // In-memory: find by token in existing map (won't survive restart)
         socket.emit('token-invalid');
-        return;
       }
-
-      onlineSockets.set(socket.id, {
-        token: participant.token,
-        name: participant.name,
-        mobile: participant.mobile,
-        joinedAt: participant.joined_at,
-      });
-      socket.join('participants');
-      socket.emit('registered', { name: participant.name, token: participant.token, returning: true });
-      io.to('organizers').emit('participants-update', await getParticipantsList());
     } catch (err) {
       console.error('reconnect error:', err);
       socket.emit('token-invalid');
     }
+  });
+
+  // Participant responds to a buzz
+  socket.on('buzz-response', async ({ token, status }) => {
+    if (!['coming', 'declined'].includes(status)) return;
+
+    const p = onlineSockets.get(socket.id);
+    if (!p) return;
+
+    // Update status
+    if (pool) {
+      await dbSetStatus(token, status);
+    }
+    // Update in-memory entry
+    if (onlineSockets.has(socket.id)) {
+      onlineSockets.get(socket.id).status = status;
+    }
+
+    // Notify organizers
+    io.to('organizers').emit('buzz-response-received', {
+      name: p.name,
+      status,
+      token,
+      time: new Date(),
+    });
+    io.to('organizers').emit('participants-update', await getParticipantsList());
+  });
+
+  // Organiser resets a participant's status back to pending
+  socket.on('reset-status', async ({ token }) => {
+    if (pool) {
+      await pool.query(
+        "UPDATE participants SET status = 'pending', status_updated_at = NULL WHERE token = $1",
+        [token]
+      );
+    }
+    // Update in-memory if online
+    for (const [sid, p] of onlineSockets.entries()) {
+      if (p.token === token) { p.status = 'pending'; break; }
+    }
+    io.to('organizers').emit('participants-update', await getParticipantsList());
   });
 
   // Organiser joins
@@ -203,14 +253,17 @@ io.on('connection', (socket) => {
     if (onlineSockets.has(socket.id)) return; // participants can't buzz
 
     if (targetToken === 'all') {
-      io.to('participants').emit('buzzed', { message: 'BUZZ! The organiser is calling everyone!' });
-      // Flash all in organiser view
+      // Only buzz pending participants (ignore coming/declined)
+      const list = await getParticipantsList();
+      const targets = list.filter(p => p.online && p.status === 'pending');
+      targets.forEach(p => {
+        io.to(p.socketId).emit('buzzed', { message: 'BUZZ! The organiser is calling everyone!' });
+      });
       io.to('organizers').emit('buzz-sent', { targetToken: 'all' });
     } else {
       const entry = [...onlineSockets.entries()].find(([, v]) => v.token === targetToken);
       if (entry) {
-        const [sid, p] = entry;
-        io.to(sid).emit('buzzed', { message: `BUZZ! The organiser is calling you!` });
+        io.to(entry[0]).emit('buzzed', { message: 'BUZZ! The organiser is calling you!' });
         io.to('organizers').emit('buzz-sent', { targetToken });
       }
     }
@@ -231,8 +284,7 @@ app.get('/qr', async (req, res) => {
   const joinUrl = `${protocol}://${host}/join`;
   try {
     const qr = await QRCode.toDataURL(joinUrl, {
-      width: 300,
-      margin: 2,
+      width: 300, margin: 2,
       color: { dark: '#1a1a2e', light: '#ffffff' },
     });
     res.json({ qr, url: joinUrl });
@@ -255,17 +307,14 @@ function getLocalIP() {
   return 'localhost';
 }
 
-// --- Boot ---
 initDB().then(() => {
   server.listen(PORT, '0.0.0.0', () => {
     const ip = getLocalIP();
     console.log('');
     console.log('  📳 BUZZER SERVER');
-    console.log('');
     console.log(`  Local:     http://localhost:${PORT}`);
     console.log(`  Network:   http://${ip}:${PORT}`);
-    console.log('');
-    console.log(`  Join page: http://${ip}:${PORT}/join`);
+    console.log(`  Join:      http://${ip}:${PORT}/join`);
     console.log(`  Organiser: http://${ip}:${PORT}/organizer`);
     console.log(`  PIN:       ${ORGANIZER_PIN}`);
     console.log('');
