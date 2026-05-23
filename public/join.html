@@ -291,6 +291,21 @@
 
     #sound-banner.unlocked { border-color: var(--green); color: var(--green); cursor: default; }
 
+    #wake-banner {
+      background: rgba(15,52,96,0.4);
+      border: 1px solid rgba(170,200,240,0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      margin-top: 12px;
+      font-size: 0.82rem;
+      color: #aac8f0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+    }
+    #wake-banner.unlocked { border-color: var(--green); color: var(--green); cursor: default; }
+
     #notif-banner {
       background: rgba(15,52,96,0.5);
       border: 1px solid rgba(15,52,96,0.9);
@@ -457,6 +472,11 @@
         <span id="soundText">Tap here to enable sound & vibration</span>
       </div>
 
+      <div id="wake-banner" onclick="acquireWakeLock()" style="display:none;">
+        <span>🌙</span>
+        <span id="wakeText">Tap to keep screen on while waiting</span>
+      </div>
+
       <div id="notif-banner" onclick="requestNotifPermission()">
         <span>🔔</span>
         <span id="notifText">Tap to enable notifications for buzzes</span>
@@ -579,6 +599,8 @@
       setupPush(token);
       checkNotifPermission();
       unlockAudio();
+      acquireWakeLock();
+      updateWakeBanner(false);
 
       // iOS-only: show PWA install prompt if not already standalone
       if (IS_IOS && !IS_STANDALONE) {
@@ -687,6 +709,45 @@
     // Unlock on any user interaction (covers new registrations and page taps)
     document.addEventListener('touchstart', unlockAudio, { once: true, passive: true });
     document.addEventListener('click', unlockAudio, { once: true });
+
+    // --- Wake Lock: keep the screen on while waiting for a buzz ---
+    let wakeLock = null;
+
+    async function acquireWakeLock() {
+      if (!('wakeLock' in navigator)) return;
+      try {
+        wakeLock = await navigator.wakeLock.request('screen');
+        wakeLock.addEventListener('release', () => { wakeLock = null; });
+        updateWakeBanner(true);
+      } catch (err) {
+        console.warn('Wake lock failed:', err);
+        updateWakeBanner(false);
+      }
+    }
+
+    function updateWakeBanner(active) {
+      const banner = document.getElementById('wake-banner');
+      if (!banner) return;
+      if (!('wakeLock' in navigator)) {
+        banner.style.display = 'none';
+        return;
+      }
+      banner.style.display = 'flex';
+      if (active) {
+        banner.className = 'unlocked';
+        document.getElementById('wakeText').textContent = '✓ Screen will stay on while you wait';
+      } else {
+        banner.className = '';
+        document.getElementById('wakeText').textContent = 'Tap to keep screen on while waiting';
+      }
+    }
+
+    // Re-acquire when the page becomes visible again (Wake Lock is auto-released on hide)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && localStorage.getItem(TOKEN_KEY)) {
+        acquireWakeLock();
+      }
+    });
 
     function playBuzzSound() {
       if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
