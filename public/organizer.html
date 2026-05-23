@@ -414,6 +414,18 @@
 
     .reset-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
 
+    .delete-btn {
+      background: rgba(233,69,96,0.08);
+      border: 1px solid rgba(233,69,96,0.25);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 6px 9px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      width: auto;
+    }
+    .delete-btn:hover { background: rgba(233,69,96,0.2); }
+
     .counts-row {
       display: flex;
       gap: 8px;
@@ -614,6 +626,11 @@
       socket.emit('reset-status', { token });
     }
 
+    function deleteParticipant(token, name) {
+      if (!confirm(`Remove ${name} from the queue? This cannot be undone.`)) return;
+      socket.emit('delete-participant', { token });
+    }
+
     // --- Feed ---
     function renderFeed() {
       const list = document.getElementById('feedList');
@@ -705,12 +722,16 @@
         ? `<span style="font-size:0.72rem;font-weight:700;background:rgba(0,212,170,0.15);color:var(--green);border:1px solid rgba(0,212,170,0.3);border-radius:50px;padding:2px 8px;margin-right:4px;">${queuePos}</span>`
         : '';
 
+      const deleteButton = `<button class="delete-btn" onclick="deleteParticipant('${safeToken}', '${escHtml(p.name).replace(/'/g, '&#39;')}')" title="Remove from queue">🗑</button>`;
+
       const actionButtons = isAvailable
         ? `<button class="buzz-btn" onclick="buzzOne('${safeToken}')" ${p.online ? '' : 'disabled'} title="${p.online ? 'Send buzz' : 'Offline'}">
              📳 Buzz
-           </button>`
+           </button>
+           ${deleteButton}`
         : `${queueBadge}<span class="status-badge ${sectionCls}">${sectionCls === 'coming' ? '✅ Coming' : '❌ Declined'}</span>
-           <button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>`;
+           <button class="reset-btn" onclick="resetStatus('${safeToken}')" title="Move back to Available">↩</button>
+           ${deleteButton}`;
 
       return `
         <div class="p-item ${sectionCls === 'available' ? '' : sectionCls} ${p.online ? '' : 'offline'}" id="pitem-${safeToken}">

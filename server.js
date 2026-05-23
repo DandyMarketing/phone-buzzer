@@ -263,6 +263,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Organiser deletes a participant entirely
+  socket.on('delete-participant', async ({ token }) => {
+    try {
+      if (pool) {
+        await pool.query('DELETE FROM participants WHERE token = $1', [token]);
+      }
+      pushSubscriptions.delete(token);
+      // Kick them out if they're online
+      for (const [sid, p] of onlineSockets.entries()) {
+        if (p.token === token) {
+          io.to(sid).emit('left-queue');
+          onlineSockets.delete(sid);
+          break;
+        }
+      }
+      io.to('organizers').emit('participants-update', await getParticipantsList());
+    } catch (err) {
+      console.error('delete-participant error:', err);
+    }
+  });
+
   // Organiser resets a participant's status back to pending
   socket.on('reset-status', async ({ token }) => {
     if (pool) {
