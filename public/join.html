@@ -401,6 +401,19 @@
         <span>Waiting for buzz…</span>
       </div>
 
+      <button id="leaveBtn" onclick="leaveQueue()" style="
+        margin-top: 28px;
+        background: transparent;
+        border: 1px solid rgba(255,255,255,0.15);
+        color: var(--muted);
+        font-size: 0.85rem;
+        font-weight: 500;
+        padding: 10px;
+        border-radius: 10px;
+        cursor: pointer;
+        width: 100%;
+      ">Leave Queue</button>
+
       <div id="sound-banner" onclick="unlockSoundManually()">
         <span>🔊</span>
         <span id="soundText">Tap here to enable sound & vibration</span>
@@ -717,6 +730,24 @@
       document.body.classList.remove('buzzing');
       clearTimeout(buzzTimeout);
     }
+
+    function leaveQueue() {
+      if (!confirm('Are you sure you want to leave the queue?')) return;
+      const token = localStorage.getItem(TOKEN_KEY);
+      if (token) socket.emit('leave-queue', { token });
+    }
+
+    socket.on('left-queue', () => {
+      localStorage.removeItem(TOKEN_KEY);
+      document.getElementById('status-screen').style.display = 'none';
+      document.getElementById('register-screen').style.display = 'block';
+      document.getElementById('nameInput').value = '';
+      document.getElementById('mobileInput').value = '';
+      document.getElementById('returning-banner').style.display = 'none';
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = false;
+      btn.textContent = 'Register';
+    });
 
     socket.on('buzzed', ({ message }) => {
       playBuzzSound();

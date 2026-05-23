@@ -241,6 +241,22 @@ io.on('connection', (socket) => {
     io.to('organizers').emit('participants-update', await getParticipantsList());
   });
 
+  // Participant leaves the queue
+  socket.on('leave-queue', async ({ token }) => {
+    try {
+      if (pool) {
+        await pool.query('DELETE FROM participants WHERE token = $1', [token]);
+      }
+      pushSubscriptions.delete(token);
+      onlineSockets.delete(socket.id);
+      socket.leave('participants');
+      socket.emit('left-queue');
+      io.to('organizers').emit('participants-update', await getParticipantsList());
+    } catch (err) {
+      console.error('leave-queue error:', err);
+    }
+  });
+
   // Organiser resets a participant's status back to pending
   socket.on('reset-status', async ({ token }) => {
     if (pool) {
