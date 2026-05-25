@@ -5,6 +5,7 @@ const QRCode = require('qrcode');
 const webpush = require('web-push');
 const os = require('os');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 
 const app = express();
@@ -417,8 +418,19 @@ app.get('/qr', async (req, res) => {
   }
 });
 
+// Cache join.html on startup; substitute {{BASE_URL}} per request so social
+// crawlers (WhatsApp, FB, etc.) get an absolute URL for the og:image
+const joinHtmlTemplate = fs.readFileSync(path.join(__dirname, 'public', 'join.html'), 'utf8');
+
+function getBaseUrl(req) {
+  const proto = req.headers['x-forwarded-proto'] || req.protocol || 'http';
+  return `${proto}://${req.headers.host}`;
+}
+
 app.get('/',          (req, res) => res.redirect('/join'));
-app.get('/join',      (req, res) => res.sendFile(path.join(__dirname, 'public', 'join.html')));
+app.get('/join',      (req, res) => {
+  res.type('html').send(joinHtmlTemplate.replace(/\{\{BASE_URL\}\}/g, getBaseUrl(req)));
+});
 app.get('/organizer', (req, res) => res.sendFile(path.join(__dirname, 'public', 'organizer.html')));
 
 function getLocalIP() {

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4a1530"/>
+      <stop offset="100%" stop-color="#2e0a1c"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ec1278" stop-opacity="0.45"/>
+      <stop offset="100%" stop-color="#ec1278" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <circle cx="900" cy="220" r="350" fill="url(#glow)"/>
+  <circle cx="280" cy="500" r="280" fill="url(#glow)" opacity="0.7"/>
+
+  <!-- big pink wordmark -->
+  <text x="80" y="240" font-family="system-ui, 'Segoe UI', sans-serif" font-weight="900" font-size="132" fill="#ec1278" letter-spacing="-4">PINK FEST</text>
+
+  <!-- subtitle -->
+  <text x="80" y="320" font-family="system-ui, 'Segoe UI', sans-serif" font-weight="700" font-size="64" fill="#ffeaf3">Event Buzzer</text>
+
+  <!-- tagline -->
+  <text x="80" y="420" font-family="system-ui, 'Segoe UI', sans-serif" font-weight="500" font-size="34" fill="#ff4d96">Tap to join the queue and get buzzed</text>
+  <text x="80" y="465" font-family="system-ui, 'Segoe UI', sans-serif" font-weight="500" font-size="34" fill="#ff4d96">when it's your turn.</text>
+
+  <!-- bell icon block -->
+  <g transform="translate(880, 360)">
+    <rect x="-110" y="-110" width="220" height="220" rx="44" fill="#ec1278"/>
+    <text x="0" y="60" font-size="180" text-anchor="middle" font-family="system-ui">📳</text>
+  </g>
+
+  <!-- footer -->
+  <text x="80" y="560" font-family="system-ui, 'Segoe UI', sans-serif" font-weight="600" font-size="26" fill="#c193ab" letter-spacing="2" opacity="0.85">SCAN · REGISTER · GET BUZZED</text>
+</svg>
